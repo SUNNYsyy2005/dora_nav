@@ -8,10 +8,78 @@ extern "C"
 
 #include "../../include/ros.h"
 
+#include <fstream>
+#include <cmath>
+#include <ctime>
+
+
+// 存储上一次的里程计信息
+nav_msgs::Odometry* last_odometry;
+nav_msgs::Odometry* cur_odometry;
+
+void scanCallback(const sensor_msgs::LaserScan* data) {
+    if (last_odometry == nullptr) {
+        last_odometry = cur_odometry;
+        printf("Waiting for odometry message...");
+        return;
+    }
+
+    auto last_pose = last_odometry->pose.pose;
+    auto cur_pose = cur_odometry->pose.pose;
+    auto last_orientation = last_pose.orientation;
+    auto cur_orientation = cur_pose.orientation;
+
+    // 计算时间差
+    double current_time = data->header.stamp.sec + data->header.stamp.nsec / 1e9;
+    double last_time = last_odometry->header.stamp.sec + last_odometry->header.stamp.nsec / 1e9;
+    double time_diff = current_time - last_time;
+
+    // 提取上一次和当前的位置和方向
+    auto last_position = last_pose.position;
+    auto cur_position = cur_pose.position;
+
+    tf::Quaternion last_orientation_quat(last_orientation.x, last_orientation.y, last_orientation.z, last_orientation.w);
+    tf::Quaternion cur_orientation_quat(cur_orientation.x, cur_orientation.y, cur_orientation.z, cur_orientation.w);
+
+    // 计算线位移
+    double linear_displacement = std::sqrt(std::pow(cur_position.x - last_position.x, 2) +
+                                           std::pow(cur_position.y - last_position.y, 2) +
+                                           std::pow(cur_position.z - last_position.z, 2));
+    double linear_displacement_mm = linear_displacement * 1000;  // 转换为毫米
+
+    // 计算角位移
+    double last_roll, last_pitch, last_yaw;
+    double cur_roll, cur_pitch, cur_yaw;
+    tf::getRPY(last_orientation_quat,last_roll, last_pitch, last_yaw);
+    tf::getRPY(cur_orientation_quat,cur_roll, cur_pitch, cur_yaw);
+    double angular_displacement = cur_yaw - last_yaw;  // 假设只考虑绕Z轴的旋转
+    double angular_displacement_degrees = angular_displacement * 180.0 / M_PI;  // 转换为度
+
+    // 计算时间戳（以毫秒为单位）
+    int64_t timestamp = static_cast<int64_t>(std::time(nullptr) * 1000);
+
+    // 将激光雷达的距离数据转换为毫米单位
+    std::vector<int> distances_mm;
+    for (const auto& distance : data->ranges) {
+        distances_mm.push_back(distance != std::numeric_limits<float>::infinity() ? static_cast<int>(distance * 1000) : 11000);
+    }
+
+    // 格式化数据
+    std::ofstream file("laser_data.dat", std::ios::app);
+    file << time_diff << " " << linear_displacement_mm << " " << angular_displacement_degrees << " ";
+    for (const auto& distance : distances_mm) {
+        file << distance << " ";
+    }
+    file << "\n";
+
+    // 更新上一次的里程计信息
+    last_odometry = cur_odometry;
+}
+
 int run(void *dora_context)
 {
     sensor_msgs::LaserScan scan;
-    sensor_msgs::Odometry odom;
+    nav_msgs::Odometry odom;
     while(true)
     {
         void *event = dora_next_event(dora_context);
@@ -25,8 +93,6 @@ int run(void *dora_context)
 
         if (ty == DoraEventType_Input)
         {
-            counter += 1;
-
             char *id_ptr;
             size_t id_len;
             read_dora_input_id(event, &id_ptr, &id_len);
@@ -39,23 +105,11 @@ int run(void *dora_context)
             {
                 data.push_back(*(data_ptr + i));
             }
-
-            std::cout
-                << "Received input "
-                << " (counter: " << (unsigned int)counter << ") data: [";
-            for (unsigned char &v : data)
-            {
-                std::cout << (unsigned int)v << ", ";
-            }
-            std::cout << "]" << std::endl;
-
-            std::vector<unsigned char> out_vec{counter};
-            std::string out_id = "counter";
-            int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&counter, 1);
-            if (result != 0)
-            {
-                std::cerr << "failed to send output" << std::endl;
-                return 1;
+            if(id == "scan"){
+                sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_vector(data);
+                scanCallback(&scan);
+            }else if(id == "odom"){
+                odom = nav_msgs::Odometry::from_vector(data);
             }
         }
         else if (ty == DoraEventType_Stop)

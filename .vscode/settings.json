@@ -70,6 +70,9 @@
         "geometry": "cpp",
         "pf_vector.h": "c",
         "pf_kdtree.h": "c",
-        "eig3.h": "c"
+        "eig3.h": "c",
+        "strstream": "cpp",
+        "codecvt": "cpp",
+        "future": "cpp"
     }
 }

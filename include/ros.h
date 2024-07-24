@@ -9,11 +9,47 @@
 
 #include <nlohmann/json.hpp>
 namespace tf{
-    struct Quaternion {
-        double x;
-        double y;
-        double z;
-        double w;
+    class Quaternion {
+        public:
+            Quaternion(double x,double y,double z,double w){
+                this->x = x;
+                this->y = y;
+                this->z = z;
+                this->w = w;
+            }
+            Quaternion(){
+                this->x = this->y = this->z = this->w = 0;
+            }
+            double x;
+            double y;
+            double z;
+            double w;
+            nlohmann::json to_json() const{
+                nlohmann::json j;
+                j["x"] = x;
+                j["y"] = y;
+                j["z"] = z;
+                j["w"] = w;
+                return j;
+            }
+            std::vector<unsigned char> to_vector() const {
+                nlohmann::json j = to_json();
+                std::string json_str = j.dump();
+                return std::vector<unsigned char>(json_str.begin(), json_str.end());
+            }
+            static Quaternion from_json(const nlohmann::json& j) {
+                Quaternion quaternion;
+                quaternion.x = j["x"];
+                quaternion.y =j["y"];
+                quaternion.z =j["z"];
+                quaternion.w =j["w"];
+                return quaternion;
+            }
+            static Quaternion from_vector(const std::vector<unsigned char>& vec) {
+                std::string json_str(vec.begin(), vec.end());
+                nlohmann::json j = nlohmann::json::parse(json_str);
+                return from_json(j);
+            }
     };
     Quaternion newQuaternion(double x, double y, double z, double w) {
         Quaternion q;
@@ -49,28 +85,101 @@ namespace tf{
     }
 }
 
-struct Vector3 {
-    double x;
-    double y;
-    double z;
+class Vector3 {
+    public:
+        double x;
+        double y;
+        double z;
+        nlohmann::json to_json() const{
+             nlohmann::json j;
+            j["x"] = x;
+            j["y"] = y;
+            j["z"] = z;
+            return j;
+        }
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        static Vector3 from_json(const nlohmann::json& j) {
+            Vector3 vector3;
+            vector3.x = j["x"];
+            vector3.y =j["y"];
+            vector3.z =j["z"];
+            return vector3;
+        }
+        static Vector3 from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
 };
 
-struct Stamp {
-    long long secs;    // 秒
-    long long nsecs;   // 纳秒
+class Stamp {
+    public:
+        long long sec;    // 秒
+        long long nsec;   // 纳秒
+        nlohmann::json to_json() const{
+            nlohmann::json j;
+            j["sec"] = sec;
+            j["nsec"] = nsec;
+            return j;
+        }
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        static Stamp from_json(const nlohmann::json& j) {
+            Stamp stamp;
+            stamp.sec = j["sec"];
+            stamp.nsec =j["nsec"];
+            return stamp;
+        }
+        static Stamp from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
 };
-struct Header {
-    unsigned int seq;          // 扫描顺序增加的id
-    Stamp stamp;              // 开始扫描的时间和与开始扫描的时间差
-    std::string frame_id;      // 扫描的参考系名称
+class Header {
+    public:
+        unsigned int seq;          // 扫描顺序增加的id
+        Stamp stamp;              // 开始扫描的时间和与开始扫描的时间差
+        std::string frame_id;      // 扫描的参考系名称
+        nlohmann::json to_json() const{
+             nlohmann::json j;
+            j["seq"] = seq;
+            j["stamp"] = stamp.to_json();
+            j["frame_id"] = frame_id;
+            return j;
+        }
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        static Header from_json(const nlohmann::json& j) {
+            Header header;
+            header.seq = j["seq"];
+            header.stamp = Stamp::from_json(j["stamp"]);
+            header.frame_id =j["frame_id"];
+            return header;
+        }
+        static Header from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
 };
 namespace sensor_msgs {
     class LaserScan {
         public:
             LaserScan(){
                 header.seq = 632;
-                header.stamp.secs = 16;
-                header.stamp.nsecs = 187000000;
+                header.stamp.sec = 16;
+                header.stamp.nsec = 187000000;
                 header.frame_id = "laser_frame";
                 angle_min = -2.3561899662017822;
                 angle_max = 2.3561899662017822;
@@ -99,8 +208,8 @@ namespace sensor_msgs {
             nlohmann::json to_json() const{
                 nlohmann::json j;
                 j["header"]["seq"] = header.seq;
-                j["header"]["stamp"]["secs"] = header.stamp.secs;
-                j["header"]["stamp"]["nsecs"] = header.stamp.nsecs;
+                j["header"]["stamp"]["sec"] = header.stamp.sec;
+                j["header"]["stamp"]["nsec"] = header.stamp.nsec;
                 j["header"]["frame_id"] = header.frame_id;
                 j["angle_min"] = angle_min;
                 j["angle_max"] = angle_max;
@@ -121,8 +230,8 @@ namespace sensor_msgs {
             static LaserScan from_json(const nlohmann::json& j) {
                 LaserScan scan;
                 scan.header.seq = j["header"]["seq"];
-                scan.header.stamp.secs = j["header"]["stamp"]["secs"];
-                scan.header.stamp.nsecs = j["header"]["stamp"]["nsecs"];
+                scan.header.stamp.sec = j["header"]["stamp"]["sec"];
+                scan.header.stamp.nsec = j["header"]["stamp"]["nsec"];
                 scan.header.frame_id = j["header"]["frame_id"];
                 scan.angle_min = j["angle_min"];
                 scan.angle_max = j["angle_max"];
@@ -144,8 +253,8 @@ namespace sensor_msgs {
     LaserScan newLaserScan() {
         LaserScan scan;
         scan.header.seq = 632;
-        scan.header.stamp.secs = 16;
-        scan.header.stamp.nsecs = 187000000;
+        scan.header.stamp.sec = 16;
+        scan.header.stamp.nsec = 187000000;
         scan.header.frame_id = "laser_frame";
         scan.angle_min = -2.3561899662017822;
         scan.angle_max = 2.3561899662017822;
@@ -206,10 +315,10 @@ namespace sensor_msgs {
         if(seq_builder.Append(scan.header.seq).ok() == false) {
             return nullptr;
         }
-        if(sec_builder.Append(scan.header.stamp.secs).ok() == false) {
+        if(sec_builder.Append(scan.header.stamp.sec).ok() == false) {
             return nullptr;
         }
-        if(nsec_builder.Append(scan.header.stamp.nsecs).ok() == false) {
+        if(nsec_builder.Append(scan.header.stamp.nsec).ok() == false) {
             return nullptr;
         }
         if(frame_id_builder.Append(scan.header.frame_id).ok() == false) {
@@ -276,8 +385,8 @@ namespace sensor_msgs {
     LaserScan ConvertArrowToLaserScan(std::shared_ptr<arrow::RecordBatch> batch) {
         LaserScan laserData;
         laserData.header.seq = std::static_pointer_cast<arrow::UInt32Array>(batch->column(0))->Value(0);
-        laserData.header.stamp.secs = std::static_pointer_cast<arrow::DoubleArray>(batch->column(1))->Value(0);
-        laserData.header.stamp.nsecs = std::static_pointer_cast<arrow::DoubleArray>(batch->column(2))->Value(0);
+        laserData.header.stamp.sec = std::static_pointer_cast<arrow::DoubleArray>(batch->column(1))->Value(0);
+        laserData.header.stamp.nsec = std::static_pointer_cast<arrow::DoubleArray>(batch->column(2))->Value(0);
         laserData.header.frame_id = std::static_pointer_cast<arrow::StringArray>(batch->column(3))->GetString(0);
 
         laserData.angle_min = std::static_pointer_cast<arrow::FloatArray>(batch->column(4))->Value(0);
@@ -314,7 +423,7 @@ namespace sensor_msgs {
     }
     void print(LaserScan scan) {
         printf("seq: %d\n", scan.header.seq);
-        printf("stamp: %lld.%lld\n", scan.header.stamp.secs, scan.header.stamp.nsecs);
+        printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
         printf("frame_id: %s\n", scan.header.frame_id.c_str());
         printf("angle_min: %f\n", scan.angle_min);
         printf("angle_max: %f\n", scan.angle_max);
@@ -338,8 +447,8 @@ namespace sensor_msgs {
         public:
             Imu(){
                 header.seq = 50;
-                header.stamp.secs = 17;
-                header.stamp.nsecs = 497000000;
+                header.stamp.sec = 17;
+                header.stamp.nsec = 497000000;
                 header.frame_id = "/imu_link";
                 orientation.x = -1.4817208738488272e-05;
                 orientation.y = 1.747766491371163e-05;
@@ -368,8 +477,8 @@ namespace sensor_msgs {
             nlohmann::json to_json() const{
                 nlohmann::json j;
                 j["header"]["seq"] = header.seq;
-                j["header"]["stamp"]["secs"] = header.stamp.secs;
-                j["header"]["stamp"]["nsecs"] = header.stamp.nsecs;
+                j["header"]["stamp"]["sec"] = header.stamp.sec;
+                j["header"]["stamp"]["nsec"] = header.stamp.nsec;
                 j["header"]["frame_id"] = header.frame_id;
                 j["orientation"]["x"] = orientation.x;
                 j["orientation"]["y"] = orientation.y;
@@ -394,8 +503,8 @@ namespace sensor_msgs {
             static Imu from_json(const nlohmann::json& j) {
                 Imu imu;
                 imu.header.seq = j["header"]["seq"];
-                imu.header.stamp.secs = j["header"]["stamp"]["secs"];
-                imu.header.stamp.nsecs = j["header"]["stamp"]["nsecs"];
+                imu.header.stamp.sec = j["header"]["stamp"]["sec"];
+                imu.header.stamp.nsec = j["header"]["stamp"]["nsec"];
                 imu.header.frame_id = j["header"]["frame_id"];
                 imu.orientation.x = j["orientation"]["x"];
                 imu.orientation.y = j["orientation"]["y"];
@@ -432,7 +541,7 @@ namespace sensor_msgs {
     };
     void print(Imu imu){
         printf("seq: %d\n", imu.header.seq);
-        printf("stamp: %lld.%lld\n", imu.header.stamp.secs, imu.header.stamp.nsecs);
+        printf("stamp: %lld.%lld\n", imu.header.stamp.sec, imu.header.stamp.nsec);
         printf("frame_id: %s\n", imu.header.frame_id.c_str());
         printf("orientation: x:%f y:%f z:%f w:%f\n", imu.orientation.x, imu.orientation.y, imu.orientation.z, imu.orientation.w);
         printf("orientation_covariance: ");
@@ -492,33 +601,85 @@ namespace geometry_msgs{
     void print(Pose2D pose){
         printf("x:%f y:%f z:%f\n",pose.x,pose.y,pose.theta);
     }
-    /*
-    geometry_msgs/PoseWithCovariance pose
-    geometry_msgs/Pose pose
-        geometry_msgs/Point position
-            float64 x
-            float64 y
-            float64 z
-        geometry_msgs/Quaternion orientation
-            float64 x
-            float64 y
-            float64 z
-            float64 w
-    float64[36] covariance
-    */
     struct Point
     {
-        float x;
-        float y;
-        float z;
+        double x;
+        double y;
+        double z;
     };
     
     class Pose {
         public:
             Point position;
+            tf::Quaternion orientation;
+            nlohmann::json to_json() const{
+                nlohmann::json j;
+                j["position"]["x"] = position.x;
+                j["position"]["y"] = position.y;
+                j["position"]["z"] = position.z;
+                j["orientation"] = orientation.to_json();
+                return j;
+            }
+            std::vector<unsigned char> to_vector() const {
+                nlohmann::json j = to_json();
+                std::string json_str = j.dump();
+                return std::vector<unsigned char>(json_str.begin(), json_str.end());
+            }
+            static Pose from_json(const nlohmann::json& j) {
+                Pose pose;
+                pose.position.x = j["position"]["x"];
+                pose.position.y = j["position"]["y"];
+                pose.position.z = j["position"]["z"];
+                pose.orientation = tf::Quaternion::from_json(j["orientation"]);
+                return pose;
+            }
+            static Pose from_vector(const std::vector<unsigned char>& vec) {
+                std::string json_str(vec.begin(), vec.end());
+                nlohmann::json j = nlohmann::json::parse(json_str);
+                return from_json(j);
+            }
+    };
+    class PoseWithCovariance{
+        public:
+            Pose pose;
+            std::array<double, 36> covariance;
+            nlohmann::json to_json() const{
+                nlohmann::json j;
+                j["pose"] = pose.to_json();
+                j["covariance"] = std::vector<double>(covariance.begin(),covariance.end());;
+                return j;
+            }
+            std::vector<unsigned char> to_vector() const {
+                nlohmann::json j = to_json();
+                std::string json_str = j.dump();
+                return std::vector<unsigned char>(json_str.begin(), json_str.end());
+            }
+            static PoseWithCovariance from_json(const nlohmann::json& j) {
+                PoseWithCovariance pose;
+                pose.pose =  Pose::from_json(j["pose"]);
+                std::vector<double> vec = j["covariance"].get<std::vector<double>>();
+                if (vec.size() != 36) {
+                    throw std::runtime_error("JSON array size is not 36");
+                }
+                std::copy(vec.begin(), vec.end(),pose.covariance.begin());
+                return pose;
+            }
+            static PoseWithCovariance from_vector(const std::vector<unsigned char>& vec) {
+                std::string json_str(vec.begin(), vec.end());
+                nlohmann::json j = nlohmann::json::parse(json_str);
+                return from_json(j);
+            }
     };
     class Twist {
         public:
+            Twist(){
+                linear.x = 0.1;
+                linear.y = 0.2;
+                linear.z = 0.3;
+                angular.x = 0.4;
+                angular.y = 0.5;
+                angular.z = 0.6;
+            }
             Vector3 linear;
             Vector3 angular;
             nlohmann::json to_json() const{
@@ -552,32 +713,88 @@ namespace geometry_msgs{
                 return from_json(j);
             }
     };
+    class TwistWithCovariance{
+        public:
+            TwistWithCovariance(){
+                covariance = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,
+                              0.11,0.22,0.33,0.44,0.55,0.66,0.77,0.88,0.99,
+                              0.111,0.222,0.333,0.444,0.555,0.666,0.777,0.888,0.999,
+                              0.1111,0.2222,0.3333,0.4444,0.5555,0.6666,0.7777,0.8888,0.9999
+                };
+            }
+            Twist twist;
+            std::array<double, 36> covariance;
+            nlohmann::json to_json() const{
+                nlohmann::json j;
+                j["twist"] = twist.to_json();
+                j["covariance"] = std::vector<double>(covariance.begin(),covariance.end());;
+                return j;
+            }
+            std::vector<unsigned char> to_vector() const {
+                nlohmann::json j = to_json();
+                std::string json_str = j.dump();
+                return std::vector<unsigned char>(json_str.begin(), json_str.end());
+            }
+            static TwistWithCovariance from_json(const nlohmann::json& j) {
+                TwistWithCovariance twist;
+                twist.twist = Twist::from_json(j["twist"]);
+                std::vector<double> vec = j["covariance"].get<std::vector<double>>();
+                if (vec.size() != 36) {
+                    throw std::runtime_error("JSON array size is not 36");
+                }
+                std::copy(vec.begin(), vec.end(),twist.covariance.begin());
+                return twist;
+            }
+            static TwistWithCovariance from_vector(const std::vector<unsigned char>& vec) {
+                std::string json_str(vec.begin(), vec.end());
+                nlohmann::json j = nlohmann::json::parse(json_str);
+                return from_json(j);
+            }
+    };
+    void print(TwistWithCovariance twist){
+        printf("linear.x:%f  linear.y:%f  linear.z:%f\n",twist.twist.linear.x,twist.twist.linear.y,twist.twist.linear.z);
+        printf("angular.x:%f  angular.y:%f  angular.z:%f\n",twist.twist.angular.x,twist.twist.angular.y,twist.twist.angular.z);
+        for (double cov : twist.covariance) {
+            printf("%f ", cov);
+        }
+        printf("\n");
+    }
 }
 namespace nav_msgs{
     class Odometry{
         public:
+            Odometry(){
+                
+            }
             Header header;
             std::string child_frame_id;
+            geometry_msgs::PoseWithCovariance pose;
+            geometry_msgs::TwistWithCovariance twist;
+            nlohmann::json to_json() const{
+                nlohmann::json j;
+                j["header"] = header.to_json();
+                j["child_frame_id"] = child_frame_id;
+                j["twist"] = twist.to_json();
+                j["pose"] = twist.to_json();
+                return j;
+            }
+            std::vector<unsigned char> to_vector() const {
+                nlohmann::json j = to_json();
+                std::string json_str = j.dump();
+                return std::vector<unsigned char>(json_str.begin(), json_str.end());
+            }
+            static Odometry from_json(const nlohmann::json& j) {
+                Odometry odom;
+                odom.twist = geometry_msgs::TwistWithCovariance::from_json(j["twist"]);
+                odom.pose = geometry_msgs::PoseWithCovariance::from_json(j["pose"]);
+                odom.header = Header::from_json(j["header"]);
+                odom.child_frame_id = j["child_frame_id"];
+                return odom;
+            }
+            static Odometry from_vector(const std::vector<unsigned char>& vec) {
+                std::string json_str(vec.begin(), vec.end());
+                nlohmann::json j = nlohmann::json::parse(json_str);
+                return from_json(j);
+            }
     };
 }
-
-/*
-
-Header header
-    uint32 seq
-    time stamp
-    string frame_id
-string child_frame_id
-
-geometry_msgs/TwistWithCovariance twist
-    geometry_msgs/Twist twist
-        geometry_msgs/Vector3 linear
-            float64 x
-            float64 y
-            float64 z
-        geometry_msgs/Vector3 angular
-            float64 x
-            float64 y
-            float64 z
-    float64[36] covariance
-*/
