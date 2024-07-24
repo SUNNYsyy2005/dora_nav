@@ -1,0 +1,31 @@
+nodes:
+  - id: lidar
+    custom:
+      source: build/lidar
+      outputs:
+        - scan
+  - id: imu
+    custom:
+      source: build/imu
+      outputs:
+        - data
+  - id: amcl
+    custom:
+      source: build/amcl
+      inputs:
+        tick: dora/timer/millis/1
+        scan: lidar/scan
+        imu: imu/data
+        twist: navigation/twist
+      outputs:
+        - pose
+  - id: navigation
+    custom:
+      source: build/nav
+      inputs:
+        tick: dora/timer/millis/100
+        pose: amcl/pose
+        scan: lidar/scan
+      outputs:
+        - twist
+
