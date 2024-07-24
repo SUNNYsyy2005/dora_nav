@@ -506,6 +506,17 @@ namespace geometry_msgs{
             float64 w
     float64[36] covariance
     */
+    struct Point
+    {
+        float x;
+        float y;
+        float z;
+    };
+    
+    class Pose {
+        public:
+            Point position;
+    };
     class Twist {
         public:
             Vector3 linear;
@@ -547,9 +558,7 @@ namespace nav_msgs{
         public:
             Header header;
             std::string child_frame_id;
-            
-            nav_msgs::Odometry
-    }
+    };
 }
 
 /*
