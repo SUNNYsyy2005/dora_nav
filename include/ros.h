@@ -492,6 +492,20 @@ namespace geometry_msgs{
     void print(Pose2D pose){
         printf("x:%f y:%f z:%f\n",pose.x,pose.y,pose.theta);
     }
+    /*
+    geometry_msgs/PoseWithCovariance pose
+    geometry_msgs/Pose pose
+        geometry_msgs/Point position
+            float64 x
+            float64 y
+            float64 z
+        geometry_msgs/Quaternion orientation
+            float64 x
+            float64 y
+            float64 z
+            float64 w
+    float64[36] covariance
+    */
     class Twist {
         public:
             Vector3 linear;
@@ -528,3 +542,33 @@ namespace geometry_msgs{
             }
     };
 }
+namespace nav_msgs{
+    class Odometry{
+        public:
+            Header header;
+            std::string child_frame_id;
+            
+            nav_msgs::Odometry
+    }
+}
+
+/*
+
+Header header
+    uint32 seq
+    time stamp
+    string frame_id
+string child_frame_id
+
+geometry_msgs/TwistWithCovariance twist
+    geometry_msgs/Twist twist
+        geometry_msgs/Vector3 linear
+            float64 x
+            float64 y
+            float64 z
+        geometry_msgs/Vector3 angular
+            float64 x
+            float64 y
+            float64 z
+    float64[36] covariance
+*/

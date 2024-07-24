@@ -1,0 +1,20 @@
+nodes:
+  - id: lidar
+    custom:
+      source: build/lidar
+      outputs:
+        - scan
+  - id: imu
+    custom:
+      source: build/imu
+      outputs:
+        - data
+  - id: slam
+    custom:
+      source: build/slam
+      inputs:
+        scan: lidar/scan
+        imu: imu/data
+      outputs:
+        - log
+

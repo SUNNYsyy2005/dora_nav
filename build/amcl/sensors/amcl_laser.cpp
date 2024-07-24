@@ -36,7 +36,7 @@
 #include <unistd.h>
 #endif
 
-#include "amcl/sensors/amcl_laser.h"
+#include "../include/sensors/amcl_laser.h"
 
 using namespace amcl;
 

@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
-#include "amcl/pf/pf.h"
-#include "amcl/pf/pf_pdf.h"
-#include "amcl/pf/pf_kdtree.h"
+#include "../include/pf/pf.h"
+#include "../include/pf/pf_pdf.h"
+#include "../include/pf/pf_kdtree.h"
 #include "portable_utils.hpp"
 
 

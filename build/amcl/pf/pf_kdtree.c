@@ -32,9 +32,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/pf/pf_vector.h"
+#include "../include/pf/pf_kdtree.h"
 
-#include "amcl/pf/pf_vector.h"
-#include "amcl/pf/pf_kdtree.h"
 #define M_PI 3.14159265358979323846
 
 // Compare keys to see if they are equal

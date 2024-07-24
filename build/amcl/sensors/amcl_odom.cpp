@@ -33,8 +33,8 @@
 
 #include <sys/types.h> // required by Darwin
 #include <math.h>
-#include "amcl/sensors/amcl_odom.h"
-#include "amcl/pf/pf.h"
+#include "../include/sensors/amcl_odom.h"
+#include "../include/pf/pf.h"
 using namespace amcl;
 
 static double

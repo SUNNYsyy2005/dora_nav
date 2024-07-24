@@ -67,6 +67,9 @@
         "unordered_set": "cpp",
         "cfenv": "cpp",
         "typeindex": "cpp",
-        "geometry": "cpp"
+        "geometry": "cpp",
+        "pf_vector.h": "c",
+        "pf_kdtree.h": "c",
+        "eig3.h": "c"
     }
 }
