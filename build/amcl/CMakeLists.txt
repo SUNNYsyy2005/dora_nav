@@ -20,6 +20,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   target_compile_definitions(amcl PUBLIC HAVE_DRAND48)
 endif ()
 
-set(src_test test.cpp)
+set(src_test main.cc)
 add_executable(test ${src_test})
 target_link_libraries(test amcl)
