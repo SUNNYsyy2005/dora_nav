@@ -128,3 +128,28 @@ public:
     
 };
 
+/**
+  * A class for the Hokuyo My laser.
+  */
+class Lidar1 : public Laser  
+{
+    
+public:
+    
+    /**
+    * Builds a URG04LX object.
+    * Lidar unit.
+    * @param detection_margin           number of rays at edges of scan to ignore
+    * @param offset_mm                  forward/backward offset of laser motor from robot center
+    * @return a new URG04LX object
+    * 
+    */
+    Lidar1(int detection_margin = 0, float offset_mm = 0) : 
+    Laser(1080, 40, 269.9994818973878, 11000, detection_margin, offset_mm) { }
+    
+    /**
+    * Builds an empty URG04LX object (all parameters zero).
+    */
+    Lidar1(void) : Laser() {} 
+    
+};

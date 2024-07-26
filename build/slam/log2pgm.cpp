@@ -40,7 +40,7 @@ Change log:
 static const int MAP_SIZE_PIXELS        = 800;
 static const double MAP_SIZE_METERS     =  32;
 
-static const int SCAN_SIZE 		        = 682;
+static const int SCAN_SIZE 		        = 1080;
 
 // Arbitrary maximum length of line in input logfile
 #define MAXLINE 10000
@@ -71,6 +71,22 @@ using namespace std;
 //  
 //where Q1, Q2 are odometry values
 
+
+/*
+VIEWER = 
+
+# Set these for different experiments
+DATASET = 
+USE_ODOMETRY = 0
+RANDOM_SEED  = 9999
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+g++ -O3 -c -I ./ log2pgm.cpp
+g++ -O3 -o log2pgm log2pgm.o -L/usr/local/lib -lbreezyslam
+./log2pgm laser_data 0 0 eog laser_data.pgm
+
+*/
+
 static void skiptok(char ** cpp)
 {
     *cpp = strtok(NULL, " ");
@@ -86,7 +102,7 @@ static int nextint(char ** cpp)
 static void load_data(
     const char * dataset, 
     vector<int *> & scans,
-    vector<long *> & odometries)
+    vector<double *> & odometries)
 {
     char filename[256];
     
@@ -107,19 +123,14 @@ static void load_data(
     {
         char * cp = strtok(s, " ");
                
-        long * odometry = new long [3];
-        odometry[0] = atol(cp);
+        double * odometry = new double[3];
+        odometry[0] = strtod(cp, &cp);
         skiptok(&cp);        
-        odometry[1] = nextint(&cp);
-        odometry[2] = nextint(&cp);
+        odometry[1] = strtod(cp, &cp);
+        skiptok(&cp);
+        odometry[2] = strtod(cp, &cp);
         
         odometries.push_back(odometry);
-        
-        // Skip unused fields
-        for (int k=0; k<20; ++k)
-        {
-            skiptok(&cp);
-        }
         
         int * scanvals = new int [SCAN_SIZE];
         
@@ -136,12 +147,12 @@ static void load_data(
 
 // Class for Mines verison of URG-04LX Lidar -----------------------------------
 
-class MinesURG04LX : public URG04LX
+class MinesURG04LX : public Lidar1
 {
     
 public:
     
-    MinesURG04LX(void): URG04LX(
+    MinesURG04LX(void): Lidar1(
         70,          // detectionMargin
         145)         // offsetMillimeters
     {
@@ -319,7 +330,8 @@ int main( int argc, const char** argv )
     // Load the Lidar and odometry data from the file   
     vector<int *> scans;
     vector<long *> odometries;
-    load_data(dataset, scans, odometries);
+    vector<double *> pose;
+    load_data(dataset, scans, pose);
        
     // Build a robot model in case we want odometry
     Rover robot = Rover();
@@ -355,11 +367,17 @@ int main( int argc, const char** argv )
         {
             long * o = odometries[scanno];
             PoseChange poseChange = robot.computePoseChange(o[0], o[1], o[2]);
+            //printf("PoseChange: %f %f %f\n", poseChange.dt_seconds, poseChange.dxy_mm, poseChange.dtheta_degrees);
             slam->update(lidar, poseChange);            
         }
         else
         {
-            slam->update(lidar);  
+            PoseChange PoseChange;
+            PoseChange.dt_seconds = pose[scanno][0];
+            PoseChange.dxy_mm = pose[scanno][1];
+            PoseChange.dtheta_degrees = pose[scanno][2];
+            //printf("PoseChange: %f %f %f\n", PoseChange.dt_seconds, PoseChange.dxy_mm, PoseChange.dtheta_degrees);
+            slam->update(lidar,PoseChange);  
         }
         
         Position position = slam->getpos();
@@ -400,7 +418,7 @@ int main( int argc, const char** argv )
     // Save map and trajectory as PGM file    
     
     char filename[100];
-    sprintf(filename, "%s.pgm", dataset);
+    sprintf(filename, "../nav/%s.pgm", dataset);
     printf("\nSaving map to file %s\n", filename);
     
     FILE * output = fopen(filename, "wt");
@@ -422,7 +440,7 @@ int main( int argc, const char** argv )
     for (int scanno=0; scanno<(int)scans.size(); ++scanno)
     {                                       
         delete scans[scanno];
-        delete odometries[scanno];
+        delete pose[scanno];
     }
     
     if (random_seed)

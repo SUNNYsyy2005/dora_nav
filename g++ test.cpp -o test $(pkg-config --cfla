@@ -1,1 +1,4 @@
 g++ test.cpp -o test $(pkg-config --cflags --libs arrow) -std=c++17
+
+g++ main.cpp -o main -lflann -llz4 -std=c++17
+g++ -o your_program your_program.cpp 

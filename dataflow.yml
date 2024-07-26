@@ -16,16 +16,15 @@ nodes:
         tick: dora/timer/millis/1
         scan: lidar/scan
         imu: imu/data
-        twist: navigation/twist
+        twist: teb/twist
       outputs:
         - pose
-  - id: navigation
+  - id: teb
     custom:
-      source: build/nav
+      source: build/teb
       inputs:
         tick: dora/timer/millis/100
         pose: amcl/pose
         scan: lidar/scan
       outputs:
         - twist
-

@@ -1,18 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(amcl)
 
-# Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  genmsg
-)
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES amcl
-  CATKIN_DEPENDS roscpp std_msgs genmsg
-)
 
 add_subdirectory(map)
 add_subdirectory(pf)
@@ -22,10 +10,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
 
 
 set(amcl_dependencies )
@@ -38,4 +22,4 @@ endif ()
 
 set(src_test test.cpp)
 add_executable(test ${src_test})
-target_link_libraries(test amcl ${catkin_LIBRARIES})
+target_link_libraries(test amcl)
