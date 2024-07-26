@@ -56,7 +56,7 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
   FILE *file2 = fopen("output.txt", "a"); // 使用 "a" 模式以追加的方式打开文件
   if (file2 == NULL) {
             printf("打开文件失败\n");
-            return; // 如果文件无法打开，则退出函数
+            return -1; // 如果文件无法打开，则退出函数
   }
   // Read ppm header
   
