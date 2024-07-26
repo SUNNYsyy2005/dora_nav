@@ -1,11 +1,11 @@
 extern "C"
 {
-#include "./include/dora/node_api.h"
+#include "node_api.h"
 }
 
 #include <iostream>
 #include <vector>
-#include "./include/ros.h"
+#include "../../include/ros.h"
 #include <chrono>
 #include <cmath>
 #include <vector>
