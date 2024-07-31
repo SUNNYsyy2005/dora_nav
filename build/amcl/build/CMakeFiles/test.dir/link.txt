@@ -1,1 +1,0 @@
-/usr/bin/c++ -rdynamic CMakeFiles/test.dir/main.cc.o -o test  libamcl.a /home/demo/dora/target/release/libdora_node_api_c.a 

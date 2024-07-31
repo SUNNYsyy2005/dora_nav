@@ -12,7 +12,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 
-set(amcl_dependencies )
+set(amcl_dependencies)
 
 add_library(amcl ${amcl_map_src} ${amcl_pf_src} ${amcl_sensors_src})
 include_directories(
@@ -34,5 +34,8 @@ target_link_libraries(
   test
   amcl
   $ENV{HOME}/dora/target/release/libdora_node_api_c.a
+  pthread
+  rt
+  dl
 )
 
