@@ -1,6 +1,6 @@
 extern "C"
 {
-#include "../include/dora/node_api.h"
+#include "node_api.h"
 }
 
 #include <iostream>

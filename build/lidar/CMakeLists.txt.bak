@@ -4,11 +4,9 @@ project(lslidar_cx_driver)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 
-# 设置 Boost 的路径
 set(BOOST_INCLUDEDIR "/usr/include")
 set(BOOST_LIBRARYDIR "/usr/lib")
 
-# 设置 libpcap 的路径
 set(PCAP_LIBRARY "-lpcap")
 set(PCAP_INCLUDE_DIR "/usr/include")
 
@@ -39,8 +37,6 @@ add_library(lslidar_cx_driver src/lslidar_driver.cpp)
 target_link_libraries(lslidar_cx_driver
     lslidar_cx_input
     $ENV{HOME}/dora/target/release/libdora_node_api_c.a
-    ${Boost_LIBRARIES}
-    boost_thread
 )
 
 # 编译可执行文件 test，并链接 lslidar_cx_driver 库
@@ -49,7 +45,5 @@ target_link_libraries(test
     lslidar_cx_driver
     lslidar_cx_input
     $ENV{HOME}/dora/target/release/libdora_node_api_c.a
-    ${Boost_LIBRARIES}
-    boost_thread
 )
 

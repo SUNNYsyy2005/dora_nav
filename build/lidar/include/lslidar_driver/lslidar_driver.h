@@ -220,7 +220,7 @@ namespace lslidar_driver {
 
         void publishPointcloud();
 
-        void publishScan();
+        void publishScan(void* dora_context);
 
         /* bool powerOn(lslidar_cx_driver::lslidar_control::Request &req,
                      lslidar_cx_driver::lslidar_control::Response &res);

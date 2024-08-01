@@ -8,7 +8,6 @@ extern "C"
 #include "../../include/ros.h"
 #include <chrono>
 #include <cmath>
-#include <vector>
 #include <algorithm>
 
 #include "include/map/map.h"
@@ -164,7 +163,7 @@ int run(void *dora_context)
     unsigned char counter = 0;
     msg2.x=1000;msg2.y=1000;msg2.theta=0;
     map = map_alloc();
-    map_load_occ(map, "map/1.pgm", 0.04,0);
+    map_load_occ(map, "/home/xiling/Desktop/1/dora_nav/build/amcl/map/1.pgm", 0.04,0);
 
     
     // 设置AMCL的激光雷达传感器模型

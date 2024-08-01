@@ -1233,7 +1233,7 @@ namespace lslidar_driver {
             pointcloud_pub_thread.detach();
 
             if (publish_scan) {
-                publishScan(void *dora_context);
+                publishScan(dora_context);
                 //boost::thread laserscan_pub_thread(&LslidarDriver::publishScan, this);
                 //laserscan_pub_thread.detach();
             };

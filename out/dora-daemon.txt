@@ -1,2 +1,30 @@
 2024-08-01T01:51:28.715456Z  INFO dora: Starting in local mode
 2024-08-01T01:51:28.717271Z  INFO dora_daemon::coordinator: Connected to dora-coordinator at 127.0.0.1:53290
+2024-08-01T10:20:44.335690Z  INFO dora: Starting in local mode
+2024-08-01T10:20:44.337217Z  INFO dora_daemon::coordinator: Connected to dora-coordinator at 127.0.0.1:53290
+2024-08-01T10:20:46.495830Z  INFO run_inner{self.machine_id=}: dora_daemon::spawn: spawning: /home/xiling/Desktop/1/dora_nav/build/lidar/build/test
+2024-08-01T10:20:46.497010Z  INFO run_inner{self.machine_id=}: dora_daemon::spawn: spawning: /home/xiling/Desktop/1/dora_nav/build/amcl/build/test
+2024-08-01T10:20:46.497911Z  INFO run_inner{self.machine_id=}: dora_daemon::spawn: spawning: /home/xiling/Desktop/1/dora_nav/build/teb/build/test
+2024-08-01T10:20:46.585733Z  INFO run_inner{self.machine_id=}: dora_daemon: all nodes are ready, starting dataflow `01910d74-d61f-7917-b730-297360b16123`
+2024-08-01T10:21:27.410688Z  WARN dora_daemon: amcl was killed due to not stopping within the 15s grace period
+2024-08-01T10:21:27.410837Z  WARN dora_daemon: teb was killed due to not stopping within the 15s grace period
+2024-08-01T10:21:27.417007Z  WARN dora_daemon::node_communication: failed to send NextFinishedDropTokens reply: NextDropEvents([])
+
+Caused by:
+   0: failed to send reply to node `teb`
+   1: failed to send DaemonReply
+   2: Broken pipe (os error 32)
+
+Location:
+    binaries/daemon/src/node_communication/tcp.rs:92:14
+2024-08-01T10:21:35.218130Z  INFO run_inner{self.machine_id=}: dora_daemon: Dataflow `01910d74-d61f-7917-b730-297360b16123` finished on machine ``
+2024-08-01T10:21:35.218185Z  WARN dora_daemon::node_communication: failed to send NextFinishedDropTokens reply: NextDropEvents([])
+
+Caused by:
+   0: failed to send reply to node `amcl`
+   1: failed to send DaemonReply
+   2: Broken pipe (os error 32)
+
+Location:
+    binaries/daemon/src/node_communication/tcp.rs:92:14
+2024-08-01T10:21:35.218209Z  WARN run_inner{self.machine_id=}: dora_daemon: Timer event for unknown dataflow `01910d74-d61f-7917-b730-297360b16123`
