@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -rdynamic CMakeFiles/lslidar_cx_driver_node.dir/src/lslidar_driver_node.cpp.o -o lslidar_cx_driver_node  liblslidar_cx_driver.a liblslidar_cx_input.a -lpcap /opt/boost-1.85.0-ubuntu-x64/lib/libboost_thread.so.1.85.0 -lpthread 

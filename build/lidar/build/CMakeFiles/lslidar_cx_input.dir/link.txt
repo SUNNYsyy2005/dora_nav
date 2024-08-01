@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblslidar_cx_input.a CMakeFiles/lslidar_cx_input.dir/src/input.cc.o
+/usr/bin/ranlib liblslidar_cx_input.a

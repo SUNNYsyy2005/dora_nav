@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblslidar_cx_driver.a CMakeFiles/lslidar_cx_driver.dir/src/lslidar_driver.cpp.o
+/usr/bin/ranlib liblslidar_cx_driver.a
