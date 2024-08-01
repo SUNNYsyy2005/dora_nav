@@ -4,14 +4,14 @@
 #include <utility>
 #include <boost/array.hpp>
 
-struct Header
+struct Header_
 {
-    Header()
+    Header_()
             : seq(0)
             , stamp()
             , frame_id()  {
     }
-    Header(const Header& h)
+    Header_(const Header_& h)
             : seq(h.seq)
             , stamp(h.stamp)
             , frame_id(h.frame_id)  {}
@@ -19,8 +19,8 @@ struct Header
     int stamp;
     int frame_id;
 
-    typedef boost::shared_ptr<Header> Ptr;
-    typedef boost::shared_ptr<Header const> ConstPtr;
+    typedef boost::shared_ptr<Header_> Ptr;
+    typedef boost::shared_ptr<Header_ const> ConstPtr;
 
 }; // struct Header_
 
@@ -94,7 +94,7 @@ struct QuaternionStamped
             : header(q.header)
             , quaternion(q.quaternion)  {
     }
-    Header header;
+    Header_ header;
     Quaternion quaternion;
 
     typedef boost::shared_ptr<QuaternionStamped> Ptr;
@@ -189,7 +189,7 @@ struct PoseStamped
             : header(p.header)
             , pose(p.pose)  {
     }
-    Header header;
+    Header_ header;
     Pose pose;
 
     typedef boost::shared_ptr<PoseStamped> Ptr;

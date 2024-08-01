@@ -11,7 +11,7 @@ nodes:
         - data
   - id: amcl
     custom:
-      source: build/amcl
+      source: build/amcl/build/test
       inputs:
         tick: dora/timer/millis/1
         scan: lidar/scan
@@ -21,7 +21,7 @@ nodes:
         - pose
   - id: teb
     custom:
-      source: build/teb
+      source: build/teb/build/teb
       inputs:
         tick: dora/timer/millis/100
         pose: amcl/pose

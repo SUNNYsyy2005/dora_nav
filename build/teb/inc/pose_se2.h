@@ -3,6 +3,7 @@
 
 #include <g2o/stuff/misc.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include "misc.h"
 #include "teb_types.h"
 

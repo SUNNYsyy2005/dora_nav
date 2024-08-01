@@ -38,8 +38,8 @@ public:
         std::vector<int> obstacle_x, obstacle_y;
 
         // 打开PGM文件
-        std::string image_path = "build/nav/1.pgm";
-        std::ifstream file(image_path, std::ios::binary);
+        std::string image_path = "../1.pgm";
+        std::ifstream file(image_path);
         if (!file) {
             std::cerr << "Failed to open image file: " << image_path << std::endl;
             return {{}, {}, 0};

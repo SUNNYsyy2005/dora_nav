@@ -1,0 +1,83 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(teb)
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+# Add dora headers
+include_directories(
+  ${YAMLCPP_INCLUDE_DIRS}
+  $ENV{HOME}/dora/apis/c/node  # dora的头文件路径 node_api.h
+  $ENV{HOME}/dora/apis/c/operator
+  ${CMAKE_CURRENT_SOURCE_DIR}/c # 添加c文件夹作为include目录
+)
+
+# Find and include Eigen3
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+# Manually specify OpenCV include directories and libraries
+include_directories(/usr/include/opencv4)
+set(OpenCV_LIBS
+  /usr/lib/libopencv_core.so
+  /usr/lib/libopencv_imgproc.so
+  /usr/lib/libopencv_highgui.so
+  /usr/lib/libopencv_imgcodecs.so
+)
+
+# Manually specify g2o library and include directories
+find_path(G2O_INCLUDE_DIR g2o/config.h
+  HINTS /usr/include /usr/local/include
+)
+
+find_library(G2O_CORE_LIBRARY g2o_core
+  HINTS /usr/lib /usr/local/lib
+)
+
+find_library(G2O_STUFF_LIBRARY g2o_stuff
+  HINTS /usr/lib /usr/local/lib
+)
+
+# Find fmt library
+find_library(FMT_LIBRARY fmt
+  HINTS /usr/lib /usr/local/lib
+)
+
+# Include g2o directories
+include_directories(${G2O_INCLUDE_DIR})
+
+# 添加c文件夹中的源文件
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/c C_SRC_FILES)
+
+# 添加源文件
+set(SRC_FILES
+  ${C_SRC_FILES}
+)
+
+# Add executable for 'test'
+set(src_test main.cc)
+add_executable(test ${src_test} ${SRC_FILES})
+target_link_libraries(
+  test
+  ${CMAKE_CURRENT_SOURCE_DIR}/libbreezyslam.so  # 链接本地的libbreezyslam库
+  $ENV{HOME}/dora/target/release/libdora_node_api_c.a
+  pthread
+  rt
+  dl
+  ${G2O_CORE_LIBRARY}       # 链接g2o库
+  ${G2O_STUFF_LIBRARY}      # 链接g2o库
+  ${OpenCV_LIBS}            # 链接OpenCV库
+  ${FMT_LIBRARY}            # 链接fmt库
+)
+
+# Output paths for clarity
+message(STATUS "G2O include dir: ${G2O_INCLUDE_DIR}")
+message(STATUS "G2O core library: ${G2O_CORE_LIBRARY}")
+message(STATUS "G2O stuff library: ${G2O_STUFF_LIBRARY}")
+message(STATUS "OpenCV include dir: /usr/include/opencv4")
+message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
+message(STATUS "FMT library: ${FMT_LIBRARY}")
+

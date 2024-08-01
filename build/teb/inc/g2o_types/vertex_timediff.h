@@ -49,7 +49,7 @@
 #include "g2o/core/base_vertex.h"
 #include "g2o/core/hyper_graph_action.h"
 
-#include "ros/console.h"
+// #include "ros/console.h"
 
 #include <Eigen/Core>
 

@@ -1,6 +1,6 @@
 extern "C"
 {
-#include "../../include/dora/node_api.h"
+#include "node_api.h"
 }
 
 #include <iostream>
@@ -136,29 +136,29 @@ int run(void *dora_context)
                 {
                     start.x() = GXtRX(GYtGX(robot.y));
                     start.y() = GYtRY(GXtGY(robot.x));
-                    start.theta() = robot.orientation-PI/2;
+                    start.theta() = robot.theta-PI/2;
                     obst_vector.clear();
                     int r = 10; // 设置半径大小
                     cv::Point center(GXtMX(robot.x), GYtMY(robot.y)); // 计算圆心
                     cv::circle(show_map, center, r, cv::Scalar(255, 255, 255), -1); // 绘制填充圆
-                    for(int i=0;i<data.range_count;i++){
-                        double angle = data.angle_min + i*data.angle_increment;
-                        double gx = data.ranges[i] * cos(angle + robot.orientation)/scale + robot.x;
-                        double gy = -data.ranges[i] * sin(angle + robot.orientation)/scale + robot.y;
+                    for(int i=0;i<scan.range_min;i++){
+                        double angle = scan.angle_min + i*scan.angle_increment;
+                        double gx = scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
+                        double gy = -scan.ranges[i] * sin(angle + robot.theta)/scale + robot.y;
                         double x = GXtRX(GYtGX(gy));
                         double y = GYtRY(GXtGY(gx));
                         int x_ = GXtMX(gx);
                         int y_ = GYtMY(gy);
                         //printf("x: %d, y: %d\n", x_, y_);
                         if(x_>=0 && x_<500 && y_>=0 && y_<500){
-                            if(data.ranges[i] < 2.5){
+                            if(scan.ranges[i] < 2.5){
                                 show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(125, 125, 125);
                             }
                             else{
                             show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(50, 50, 50);
                             }
                         }
-                        if(data.ranges[i] < 1.5){
+                        if(scan.ranges[i] < 1.5){
                             obst_vector.emplace_back(boost::make_shared<PointObstacle>(x, y));
                         }
                     }
@@ -189,7 +189,7 @@ int run(void *dora_context)
                     std::string out_id = "twist";
                     geometry_msgs::Twist twist;
                     twist.linear.x = vx;
-                    twist.angular.z = vw;
+                    twist.angular.z = w;
                     std::vector<unsigned char> out_vec = twist.to_vector();
                     int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
                     if (result != 0)
@@ -216,8 +216,8 @@ int run(void *dora_context)
                     end.y() = GYtRY(GXtGY(pathh[reach_num].first));
                     std::string out_id = "twist";
                     geometry_msgs::Twist twist;
-                    twist.linear.x = vx;
-                    twist.angular.z = vw;
+                    // twist.linear.x = vx;
+                    // twist.angular.z = vw;
                     std::vector<unsigned char> out_vec = twist.to_vector();
                     int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
                     if (result != 0)

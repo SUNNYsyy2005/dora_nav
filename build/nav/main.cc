@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <unistd.h>
-#include "A_star_dwa.cpp"
+#include "A_star_dwa.cc"
 
 double getAngle(int x1, int y1, int x2, int y2) {
     double angle = atan2(y1 - y2, x1 - x2);
