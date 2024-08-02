@@ -15,8 +15,8 @@ nodes:
     custom:
       source: build/amcl/build/test
       inputs:
-        tick: dora/timer/millis/10
-        # scan: lidar/scan
+        tick: dora/timer/millis/100
+        scan2: lidar/scan
         # imu: imu/data
         twist: teb/twist
       outputs:

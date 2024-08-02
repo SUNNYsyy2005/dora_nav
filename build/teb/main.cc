@@ -138,6 +138,7 @@ int run(void *dora_context)
             std::string id(id_ptr, id_len);
             
             if(id == "tick"){
+                
                 memset(show_map.data, 0, 500 * 500 * 3);
                 try
                 {
@@ -197,8 +198,13 @@ int run(void *dora_context)
                     geometry_msgs::Twist twist;
                     twist.linear.x = vx;
                     twist.angular.z = w;
-                    std::vector<unsigned char> out_vec = twist.to_vector();
-                    int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
+                    nlohmann::json json_obj = twist.to_json();
+                    std::string json_str = json_obj.dump();
+                    printf("%s\n", json_str.c_str());
+                    const char* char_ptr = json_str.c_str();
+                    char* non_const_char_ptr = new char[json_str.size() + 1];
+                    std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
+                    int result = dora_send_output(dora_context, &out_id[0], out_id.length(), reinterpret_cast<char*>(non_const_char_ptr), json_str.size());
                     if (result != 0)
                     {
                         std::cerr << "failed to send output" << std::endl;
@@ -223,10 +229,21 @@ int run(void *dora_context)
                     end.y() = GYtRY(GXtGY(pathh[reach_num].first));
                     std::string out_id = "twist";
                     geometry_msgs::Twist twist;
-                    // twist.linear.x = vx;
-                    // twist.angular.z = vw;
-                    std::vector<unsigned char> out_vec = twist.to_vector();
-                    int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
+                    twist.linear.x = 0;
+                    twist.angular.z = 0;
+                    //
+                    //twist.linear.x = vx;
+                    //twist.angular.z = vw;
+                    //std::vector<unsigned char> out_vec = twist.to_vector();
+                    nlohmann::json json_obj = twist.to_json();
+                    std::string json_str = json_obj.dump();
+                    printf("%s\n", json_str.c_str());
+                    const char* char_ptr = json_str.c_str();
+                    char* non_const_char_ptr = new char[json_str.size() + 1];
+                    std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
+
+
+                    int result = dora_send_output(dora_context, &out_id[0], out_id.length(), reinterpret_cast<char*>(non_const_char_ptr), json_str.size());
                     if (result != 0)
                     {
                         std::cerr << "failed to send output" << std::endl;

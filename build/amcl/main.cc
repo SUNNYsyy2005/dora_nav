@@ -33,7 +33,15 @@ amcl::AMCLLaser laser_sensor(10, NULL);
 amcl::AMCLOdom odom_sensor;
 amcl::AMCLLaserData laser_data;
 amcl::AMCLOdomData odom_data;
-
+void replace_null_with_nan(std::string& json_str) {
+    std::string null_str = "null";
+    std::string nan_str = "-1";
+    size_t pos = 0;
+    while ((pos = json_str.find(null_str, pos)) != std::string::npos) {
+        json_str.replace(pos, null_str.length(), nan_str);
+        pos += nan_str.length();
+    }
+}
 void updateParticlePoses() {
     // 确保有足够的位移或转向变化再更新
     odom_data.delta.v[0] = global_x;
@@ -165,7 +173,7 @@ int run(void *dora_context)
     map = map_alloc();
     map_load_occ(map, "/home/sunny/dora_nav/build/amcl/map/1.pgm", 0.04,0);
 
-    
+    printf("map size: %d %d\n", map->size_x, map->size_y);
     // 设置AMCL的激光雷达传感器模型
     amcl::AMCLLaser aa((size_t)1080, map);
     laser_sensor = aa;
@@ -203,6 +211,7 @@ int run(void *dora_context)
         }
 
         enum DoraEventType ty = read_dora_event_type(event);
+        printf("[c node] received event: %d\n", ty);
 
         if (ty == DoraEventType_Input)
         {
@@ -212,50 +221,79 @@ int run(void *dora_context)
             size_t id_len;
             read_dora_input_id(event, &id_ptr, &id_len);
             std::string id(id_ptr, id_len);
-
+            printf("id: %s\n", id.c_str());
             if(id == "tick")
             {
                 std::string out_id = "pose";
                 std::vector<unsigned char> out_vec = msg2.to_vector();
-                int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
+                int result = 0;//dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
                 if (result != 0)
                 {
                     std::cerr << "failed to send output" << std::endl;
                     return 1;
                 }
-            }else if(id == "scan"){
+                printf("tick\n");
+            }else if(id == "scan2"){
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
-                std::vector<unsigned char> data;
-                for (size_t i = 0; i < data_len; i++)
-                {
-                    data.push_back(*(data_ptr + i));
+                std::string json_str(data_ptr, data_len);
+                printf("json_str: %s\n", json_str.c_str());
+                replace_null_with_nan(json_str);
+                printf("json_str: %s\n", json_str.c_str());
+                //nlohmann::json json_obj = nlohmann::json::parse(json_str);
+                //sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
+                /* printf("seq: %d\n", scan.header.seq);
+                printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
+                printf("frame_id: %s\n", scan.header.frame_id.c_str());
+                printf("angle_min: %f\n", scan.angle_min);
+                printf("angle_max: %f\n", scan.angle_max);
+                printf("angle_increment: %f\n", scan.angle_increment);
+                printf("time_increment: %f\n", scan.time_increment);
+                printf("scan_time: %f\n", scan.scan_time);
+                printf("range_min: %f\n", scan.range_min);
+                printf("range_max: %f\n", scan.range_max);
+                printf("ranges: ");
+                for (float range : scan.ranges) {
+                    printf("%f ", range);
                 }
-                sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_vector(data);
-                laserCallback(&scan);
+                printf("\n");
+                printf("intensities: ");
+                for (float intensity : scan.intensities) {
+                    printf("%f ", intensity);
+                }
+                printf("\n  "); */
+                //laserCallback(&scan);
             }else if(id == "imu"){
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
-                std::vector<unsigned char> data;
-                for (size_t i = 0; i < data_len; i++)
-                {
-                    data.push_back(*(data_ptr + i));
-                }
-                sensor_msgs::Imu imu = sensor_msgs::Imu::from_vector(data);
-                imuCallback(&imu);
+                //std::vector<unsigned char> data;
+                //for (size_t i = 0; i < data_len; i++)
+                //{
+                //    data.push_back(*(data_ptr + i));
+                //}
+                //sensor_msgs::Imu imu = sensor_msgs::Imu::from_vector(data);
+                //imuCallback(&imu);
             }else if(id == "twist"){
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
-                std::vector<unsigned char> data;
-                for (size_t i = 0; i < data_len; i++)
-                {
-                    data.push_back(*(data_ptr + i));
-                }
-                geometry_msgs::Twist twist = geometry_msgs::Twist::from_vector(data);
-                ackermannCmdCallback(&twist);
+                std::string json_str(data_ptr, data_len);
+                printf("json_str: %s\n", json_str.c_str());
+                replace_null_with_nan(json_str);
+                printf("json_str: %s\n", json_str.c_str());
+                nlohmann::json json_obj = nlohmann::json::parse(json_str);
+                geometry_msgs::Twist twist = geometry_msgs::Twist::from_json(json_obj);
+                printf("linear x: %f\n", twist.linear.x);
+                printf("angular z: %f\n", twist.angular.z);
+                //std::vector<unsigned char> data;
+                //for (size_t i = 0; i < data_len; i++)
+                //{
+                //    data.push_back(*(data_ptr + i));
+                //}
+                //geometry_msgs::Twist twist = geometry_msgs::Twist::from_vector(data);
+                //ackermannCmdCallback(&twist);
             }
         }
         else if (ty == DoraEventType_Stop)
