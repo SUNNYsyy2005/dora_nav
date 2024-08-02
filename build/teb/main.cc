@@ -71,7 +71,7 @@ sensor_msgs::LaserScan scan;
 int run(void *dora_context)
 {
     std::string line;
-    std::ifstream file("/home/xiling/Desktop/1/dora_nav/build/teb/path.csv");
+    std::ifstream file("/home/sunny/dora_nav/build/teb/path.csv");
     std::vector<std::pair<float, float>> pathh;
     if (file.is_open()) {
         

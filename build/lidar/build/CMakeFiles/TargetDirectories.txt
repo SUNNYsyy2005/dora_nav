@@ -1,5 +1,5 @@
-/home/xiling/Desktop/1/dora_nav/build/lidar/build/CMakeFiles/lslidar_cx_input.dir
-/home/xiling/Desktop/1/dora_nav/build/lidar/build/CMakeFiles/lslidar_cx_driver.dir
-/home/xiling/Desktop/1/dora_nav/build/lidar/build/CMakeFiles/test.dir
-/home/xiling/Desktop/1/dora_nav/build/lidar/build/CMakeFiles/edit_cache.dir
-/home/xiling/Desktop/1/dora_nav/build/lidar/build/CMakeFiles/rebuild_cache.dir
+/home/sunny/dora_nav/build/lidar/build/CMakeFiles/lslidar_cx_input.dir
+/home/sunny/dora_nav/build/lidar/build/CMakeFiles/lslidar_cx_driver.dir
+/home/sunny/dora_nav/build/lidar/build/CMakeFiles/test.dir
+/home/sunny/dora_nav/build/lidar/build/CMakeFiles/edit_cache.dir
+/home/sunny/dora_nav/build/lidar/build/CMakeFiles/rebuild_cache.dir
