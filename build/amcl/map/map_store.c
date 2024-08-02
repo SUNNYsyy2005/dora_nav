@@ -111,9 +111,9 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
           occ = +1;
         } 
         else if (ch >= depth-1){
-          fprintf(file2, "j: %d i:%d\n", j, i);
+          //fprintf(file2, "j: %d i:%d\n", j, i);
           
-          printf("j: %d i:%d\n", j,i);
+          //printf("j: %d i:%d\n", j,i);
           occ = -1;
           tt--;
         }
