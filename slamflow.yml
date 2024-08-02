@@ -1,27 +1,30 @@
 nodes:
   - id: lidar
     custom:
-      source: build/lidar
+      source: build/lidar/build/test
+      inputs:
+        tick: dora/timer/millis/10
       outputs:
         - scan
-  - id: imu
-    custom:
-      source: build/imu
-      outputs:
-        - data
-  - id: localization
-    custom:
-      source: build/localization
-      inputs:
-        imu: imu/data
-      outputs:
-        - pose
+  # - id: imu
+  #   custom:
+  #     source: build/imu
+  #     outputs:
+  #       - data
+  #- id: localization
+  #  custom:
+  #    source: build/localization
+      #inputs:
+        #imu: imu/data
+  #    outputs:
+  #      - pose
   - id: slam
     custom:
-      source: build/slam
+      source: build/slam/build/test
       inputs:
+        tick: dora/timer/millis/100
         scan: lidar/scan
-        imu: imu/data
+        #imu: imu/data
       outputs:
         - log
 
