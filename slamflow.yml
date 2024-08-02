@@ -9,6 +9,13 @@ nodes:
       source: build/imu
       outputs:
         - data
+  - id: localization
+    custom:
+      source: build/localization
+      inputs:
+        imu: imu/data
+      outputs:
+        - pose
   - id: slam
     custom:
       source: build/slam

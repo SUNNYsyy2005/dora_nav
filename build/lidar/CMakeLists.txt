@@ -5,13 +5,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 
 # 设置 Boost 的路径
-set(BOOST_INCLUDEDIR "/usr/include")
-set(BOOST_LIBRARYDIR "/usr/lib")
+set(BOOST_INCLUDEDIR "/opt/boost-1.85.0-ubuntu-x64/include")
+set(BOOST_LIBRARYDIR "/opt/boost-1.85.0-ubuntu-x64/lib")
 
 # 设置 libpcap 的路径
 set(PCAP_LIBRARY "-lpcap")
 set(PCAP_INCLUDE_DIR "/usr/include")
 
+# 包含目录
 include_directories(
     include
     ${BOOST_INCLUDEDIR}
@@ -21,17 +22,23 @@ include_directories(
     $ENV{HOME}/dora/apis/c/operator
 )
 
+# 链接目录
 link_directories(
     ${BOOST_LIBRARYDIR}
 )
 
+# 定义宏
 add_definitions("-D${PROJECT_NAME}_VERSION=\"${${PROJECT_NAME}_VERSION}\"")
+
+# 找到线程库
+find_package(Threads REQUIRED)
 
 # 编译 lslidar_cx_input 库
 add_library(lslidar_cx_input src/input.cc)
 target_link_libraries(lslidar_cx_input
     ${PCAP_LIBRARY}
     ${Boost_LIBRARIES}
+    Threads::Threads
 )
 
 # 编译 lslidar_cx_driver 库
@@ -41,6 +48,9 @@ target_link_libraries(lslidar_cx_driver
     $ENV{HOME}/dora/target/release/libdora_node_api_c.a
     ${Boost_LIBRARIES}
     boost_thread
+    Threads::Threads
+    rt # 添加 rt 库
+    dl # 添加 dl 库
 )
 
 # 编译可执行文件 test，并链接 lslidar_cx_driver 库
@@ -51,5 +61,14 @@ target_link_libraries(test
     $ENV{HOME}/dora/target/release/libdora_node_api_c.a
     ${Boost_LIBRARIES}
     boost_thread
+    Threads::Threads # 明确链接到 pthread
+    rt # 添加 rt 库
+    dl # 添加 dl 库
 )
 
+# 确保 Boost 库被找到
+find_package(Boost 1.85.0 REQUIRED COMPONENTS system thread)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    link_directories(${Boost_LIBRARY_DIRS})
+endif()
