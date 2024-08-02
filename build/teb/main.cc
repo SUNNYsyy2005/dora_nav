@@ -255,12 +255,12 @@ int run(void *dora_context)
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
-                std::vector<unsigned char> data;
-                for (size_t i = 0; i < data_len; i++)
-                {
-                    data.push_back(*(data_ptr + i));
-                }
-                robot = geometry_msgs::Pose2D::from_vector(data);
+                std::string json_str(data_ptr, data_len);
+                printf("json_str: %s\n", json_str.c_str());
+                replace_null_with_nan(json_str);
+                printf("json_str: %s\n", json_str.c_str());
+                nlohmann::json json_obj = nlohmann::json::parse(json_str);
+                robot = geometry_msgs::Pose2D::from_json(json_obj);
             }else if(id == "scan"){
                 char *data_ptr;
                 size_t data_len;

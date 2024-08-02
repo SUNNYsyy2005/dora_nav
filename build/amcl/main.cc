@@ -225,8 +225,13 @@ int run(void *dora_context)
             if(id == "tick")
             {
                 std::string out_id = "pose";
-                std::vector<unsigned char> out_vec = msg2.to_vector();
-                int result = 0;//dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
+                nlohmann::json json_obj = msg2.to_json();
+                std::string json_str = json_obj.dump();
+                printf("%s\n", json_str.c_str());
+                const char* char_ptr = json_str.c_str();
+                char* non_const_char_ptr = new char[json_str.size() + 1];
+                std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
+                int result = dora_send_output(dora_context, &out_id[0], out_id.length(), reinterpret_cast<char*>(non_const_char_ptr), json_str.size());
                 if (result != 0)
                 {
                     std::cerr << "failed to send output" << std::endl;
@@ -241,9 +246,9 @@ int run(void *dora_context)
                 printf("json_str: %s\n", json_str.c_str());
                 replace_null_with_nan(json_str);
                 printf("json_str: %s\n", json_str.c_str());
-                //nlohmann::json json_obj = nlohmann::json::parse(json_str);
-                //sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
-                /* printf("seq: %d\n", scan.header.seq);
+                nlohmann::json json_obj = nlohmann::json::parse(json_str);
+                sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
+                printf("seq: %d\n", scan.header.seq);
                 printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
                 printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 printf("angle_min: %f\n", scan.angle_min);
@@ -262,8 +267,8 @@ int run(void *dora_context)
                 for (float intensity : scan.intensities) {
                     printf("%f ", intensity);
                 }
-                printf("\n  "); */
-                //laserCallback(&scan);
+                printf("\n  ");
+                laserCallback(&scan);
             }else if(id == "imu"){
                 char *data_ptr;
                 size_t data_len;
