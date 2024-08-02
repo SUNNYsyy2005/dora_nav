@@ -63,7 +63,7 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     for (const auto& distance : data->ranges) {
         distances_mm.push_back(distance != std::numeric_limits<float>::infinity() ? static_cast<int>(distance * 1000) : 11000);
     }
-
+    printf("time_diff: %f, linear_displacement_mm: %f, angular_displacement_degrees: %f\n", time_diff, linear_displacement_mm, angular_displacement_degrees);
     // 格式化数据
     std::ofstream file("laser_data.dat", std::ios::app);
     file << time_diff << " " << linear_displacement_mm << " " << angular_displacement_degrees << " ";
@@ -75,11 +75,21 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     // 更新上一次的里程计信息
     last_odometry = cur_odometry;
 }
-
+void replace_null_with_nan(std::string& json_str) {
+    std::string null_str = "null";
+    std::string nan_str = "-1";
+    size_t pos = 0;
+    while ((pos = json_str.find(null_str, pos)) != std::string::npos) {
+        json_str.replace(pos, null_str.length(), nan_str);
+        pos += nan_str.length();
+    }
+}
 int run(void *dora_context)
 {
+    printf("[c node] running...\n");
     sensor_msgs::LaserScan scan;
     nav_msgs::Odometry odom;
+    printf("[c node] running...\n");
     while(true)
     {
         void *event = dora_next_event(dora_context);
@@ -90,7 +100,7 @@ int run(void *dora_context)
         }
 
         enum DoraEventType ty = read_dora_event_type(event);
-
+        printf("[c node] received event type: %d\n", ty);
         if (ty == DoraEventType_Input)
         {
             char *id_ptr;
@@ -105,8 +115,17 @@ int run(void *dora_context)
             {
                 data.push_back(*(data_ptr + i));
             }
-            if(id == "scan"){
-                sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_vector(data);
+            printf("[c node] received input event: %s\n", id.c_str());
+            if(id == "tick"){
+                printf("tick\n");
+            }
+            else if(id == "scan"){
+                std::string json_str(data_ptr, data_len);
+                printf("json_str: %s\n", json_str.c_str());
+                replace_null_with_nan(json_str);
+                printf("json_str: %s\n", json_str.c_str());
+                nlohmann::json json_obj = nlohmann::json::parse(json_str);
+                sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
                 scanCallback(&scan);
             }else if(id == "odom"){
                 odom = nav_msgs::Odometry::from_vector(data);
@@ -131,6 +150,8 @@ int main()
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
 
     auto dora_context = init_dora_context_from_env();
+
+    std::cout << "HELLO FROM C++ (using C API)" << std::endl;
     auto ret = run(dora_context);
     free_dora_context(dora_context);
 
