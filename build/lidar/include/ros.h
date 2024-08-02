@@ -75,11 +75,23 @@ namespace Ros {
             for (float intensity : scan->intensities) {
                 printf("%f ", intensity);
             }
+            printf("\n  ");
             printf("\n");
             printf("publish packet\n");
-            std::vector<unsigned char> out_vec = scan->to_vector();
+            nlohmann::json json_obj = scan->to_json();
+            std::string json_str = json_obj.dump();
+            printf("%s\n", json_str.c_str());
+            const char* char_ptr = json_str.c_str();
+            char* non_const_char_ptr = new char[json_str.size() + 1];
+            std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
+            //std::vector<unsigned char> out_vec = scan->to_vector();
+            //printf("Output vector: ");
+            //for (unsigned char c : out_vec) {
+            //    printf("%02x ", c);  // 以十六进制格式输出每个字节
+            //}
             std::string out_id = "scan";
-            int result = dora_send_output(dora_context, &out_id[0], out_id.length(), (char *)&out_vec, out_vec.size());
+            int result = dora_send_output(dora_context, &out_id[0], out_id.length(), reinterpret_cast<char*>(non_const_char_ptr), json_str.size());
+            delete[] non_const_char_ptr;
             if (result != 0)
             {
                 std::cerr << "failed to send output" << std::endl;
