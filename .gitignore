@@ -10,3 +10,5 @@ build/teb/path.csv
 build/lidar/build
 
 out/
+
+.vscode/
