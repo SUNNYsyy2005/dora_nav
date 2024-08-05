@@ -10,7 +10,7 @@
 
 class Header {
 public:
-    unsigned int seq;          // 扫描顺序增加的id
+    uint32_t seq;          // 扫描顺序增加的id
     struct Stamp {
         long long sec;    // 秒
         long long nsec;   // 纳秒
@@ -201,14 +201,36 @@ namespace sensor_msgs {
             j["scan_time"] = scan_time;
             j["range_min"] = range_min;
             j["range_max"] = range_max;
-            j["ranges"] = ranges;
-            j["intensities"] = intensities;
+            j["ranges"] =  vector_to_json(ranges);//ranges;
+            j["intensities"] = vector_to_json(intensities);//intensities;
             return j;
         }
         std::vector<unsigned char> to_vector() const {
             nlohmann::json j = to_json();
             std::string json_str = j.dump();
             return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        std::vector<float> json_to_vector(const nlohmann::json& j) const{
+            std::vector<float> vec;
+            for (const auto& val : j) {
+                if (val.is_string() && val.get<std::string>() == "NaN") {
+                    vec.push_back(NAN);
+                } else {
+                    vec.push_back(val.get<float>());
+                }
+            }
+            return vec;
+        }
+        nlohmann::json vector_to_json(const std::vector<float> & vec) const{
+            nlohmann::json j = nlohmann::json::array();
+            for (const auto& val : vec) {
+                if (std::isnan(val)) {
+                    j.push_back("NaN");
+                } else {
+                    j.push_back(val);
+                }
+            }
+            return j;
         }
         static LaserScan from_json(const nlohmann::json& j) {
             LaserScan scan;
@@ -223,8 +245,8 @@ namespace sensor_msgs {
             scan.scan_time = j["scan_time"];
             scan.range_min = j["range_min"];
             scan.range_max = j["range_max"];
-            scan.ranges = j["ranges"].get<std::vector<float>>();
-            scan.intensities = j["intensities"].get<std::vector<float>>();
+            scan.ranges = scan.json_to_vector(j["ranges"]);// j["ranges"].get<std::vector<float>>();
+            scan.intensities = scan.json_to_vector(j["intensities"]);//j["intensities"].get<std::vector<float>>();
             return scan;
         }
         static LaserScan from_vector(const std::vector<unsigned char>& vec) {

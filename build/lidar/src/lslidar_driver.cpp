@@ -74,13 +74,13 @@ namespace lslidar_driver {
         pnh.param("msop_port", msop_udp_port, (int) MSOP_DATA_PORT_NUMBER);
         pnh.param("difop_port", difop_udp_port, (int) DIFOP_DATA_PORT_NUMBER);
         pnh.param("point_num", point_num, 2000);
-        pnh.param("scan_num", scan_num, 8);
+        pnh.param("scan_num", scan_num, 15);
         pnh.param("distance_min", min_range, 0.15);
         pnh.param("distance_max", max_range, 200.0);
         pnh.param("distance_unit", distance_unit, 0.40);
         pnh.param("angle_disable_min", angle_disable_min, 0);
         pnh.param("angle_disable_max", angle_disable_max, 0);
-        pnh.param("horizontal_angle_resolution", horizontal_angle_resolution, 0.2);
+        pnh.param("horizontal_angle_resolution", horizontal_angle_resolution, 0.18);
         pnh.param<bool>("use_time_service", use_time_service, false);
         pnh.param<bool>("publish_scan", publish_scan, true);
         pnh.param<bool>("coordinate_opt", coordinate_opt, false);

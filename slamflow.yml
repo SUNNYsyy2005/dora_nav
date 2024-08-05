@@ -25,6 +25,6 @@ nodes:
         tick: dora/timer/millis/100
         scan: lidar/scan
         #imu: imu/data
-      outputs:
-        - log
+      #outputs:
+      #  - log
 

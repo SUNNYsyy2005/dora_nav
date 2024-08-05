@@ -14,24 +14,24 @@ extern "C"
 
 
 // 存储上一次的里程计信息
-nav_msgs::Odometry* last_odometry;
-nav_msgs::Odometry* cur_odometry;
+nav_msgs::Odometry last_odometry;
+nav_msgs::Odometry cur_odometry;
 
 void scanCallback(const sensor_msgs::LaserScan* data) {
-    if (last_odometry == nullptr) {
-        last_odometry = cur_odometry;
-        printf("Waiting for odometry message...");
-        return;
-    }
-
-    auto last_pose = last_odometry->pose.pose;
-    auto cur_pose = cur_odometry->pose.pose;
+    //if (last_odometry == nullptr) {
+    //    last_odometry = cur_odometry;
+    //    printf("Waiting for odometry message...");
+    //    return;
+    //}
+    printf("Received laser scan message\n");
+    auto last_pose = last_odometry.pose.pose;
+    auto cur_pose = cur_odometry.pose.pose;
     auto last_orientation = last_pose.orientation;
     auto cur_orientation = cur_pose.orientation;
 
     // 计算时间差
-    double current_time = data->header.stamp.sec + data->header.stamp.nsec / 1e9;
-    double last_time = last_odometry->header.stamp.sec + last_odometry->header.stamp.nsec / 1e9;
+    double current_time = cur_odometry.header.stamp.sec + cur_odometry.header.stamp.nsec / 1e9;
+    double last_time = last_odometry.header.stamp.sec + last_odometry.header.stamp.nsec / 1e9;
     double time_diff = current_time - last_time;
 
     // 提取上一次和当前的位置和方向
@@ -75,15 +75,7 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     // 更新上一次的里程计信息
     last_odometry = cur_odometry;
 }
-void replace_null_with_nan(std::string& json_str) {
-    std::string null_str = "null";
-    std::string nan_str = "-1";
-    size_t pos = 0;
-    while ((pos = json_str.find(null_str, pos)) != std::string::npos) {
-        json_str.replace(pos, null_str.length(), nan_str);
-        pos += nan_str.length();
-    }
-}
+int counter = 0;
 int run(void *dora_context)
 {
     printf("[c node] running...\n");
@@ -117,15 +109,27 @@ int run(void *dora_context)
             }
             printf("[c node] received input event: %s\n", id.c_str());
             if(id == "tick"){
-                printf("tick\n");
+                //printf("tick\n");
+                odom.header.stamp.sec = 0;
+                odom.header.stamp.nsec = counter*100000000;
+                odom.pose.pose.position.x = 0.1;
+                odom.pose.pose.position.y = 0;
+                odom.pose.pose.position.z = 0;
+                odom.pose.pose.orientation.x = 0;
+                odom.pose.pose.orientation.y = 0;
+                odom.pose.pose.orientation.z = 0;
+                last_odometry = cur_odometry;
+                cur_odometry = odom;
             }
             else if(id == "scan"){
                 std::string json_str(data_ptr, data_len);
+                //printf("json_str: %d\n", data_len);
                 printf("json_str: %s\n", json_str.c_str());
-                replace_null_with_nan(json_str);
-                printf("json_str: %s\n", json_str.c_str());
+                //replace_null_with_nan(json_str);
+                //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
+                print(scan);
                 scanCallback(&scan);
             }else if(id == "odom"){
                 odom = nav_msgs::Odometry::from_vector(data);
@@ -150,7 +154,13 @@ int main()
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
 
     auto dora_context = init_dora_context_from_env();
-
+    last_odometry = new nav_msgs::Odometry();
+    last_odometry->pose.pose.position.x = 0;
+    last_odometry->pose.pose.position.y = 0;
+    last_odometry->pose.pose.position.z = 0;
+    last_odometry->pose.pose.orientation.x = 0;
+    last_odometry->pose.pose.orientation.y = 0;
+    last_odometry->pose.pose.orientation.z = 0;
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
     auto ret = run(dora_context);
     free_dora_context(dora_context);
