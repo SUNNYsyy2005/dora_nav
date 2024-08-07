@@ -65,7 +65,7 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     std::vector<int> distances_mm;
     for (const auto& distance : data->ranges) {
         //printf("distance: %f\n", distance);
-        distances_mm.push_back(/*distance != std::numeric_limits<float>::infinity()*/(!std::isnan(distance)) ? round(distance * 1000) : 11000);
+        distances_mm.push_back(/*distance != std::numeric_limits<float>::infinity()*/(!std::isnan(distance)) ? round(distance * 1000) : std::numeric_limits<int>::infinity());
     }
     printf("time_diff: %f, linear_displacement_mm: %f, angular_displacement_degrees: %f\n", time_diff, linear_displacement_mm, angular_displacement_degrees);
     // 格式化数据

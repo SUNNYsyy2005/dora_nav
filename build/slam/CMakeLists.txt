@@ -10,6 +10,7 @@ include_directories(
   $ENV{HOME}/dora/apis/c/node  # dora的头文件路径 node_api.h
   $ENV{HOME}/dora/apis/c/operator
   ${CMAKE_CURRENT_SOURCE_DIR}  # 添加当前目录包含头文件
+  ${CMAKE_CURRENT_SOURCE_DIR}/c
 )
 
 # 添加源文件
