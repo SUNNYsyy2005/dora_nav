@@ -273,13 +273,19 @@ int run(void *dora_context)
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
+                std::string json_str(data_ptr, data_len);
+                printf("json_str: %s\n", json_str.c_str());
+                //replace_null_with_nan(json_str);
+                //printf("json_str: %s\n", json_str.c_str());
+                nlohmann::json json_obj = nlohmann::json::parse(json_str);
+                sensor_msgs::Imu imu = sensor_msgs::Imu::from_json(json_obj);
                 //std::vector<unsigned char> data;
                 //for (size_t i = 0; i < data_len; i++)
                 //{
                 //    data.push_back(*(data_ptr + i));
                 //}
                 //sensor_msgs::Imu imu = sensor_msgs::Imu::from_vector(data);
-                //imuCallback(&imu);
+                imuCallback(&imu);
             }else if(id == "twist"){
                 char *data_ptr;
                 size_t data_len;

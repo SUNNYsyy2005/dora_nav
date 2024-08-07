@@ -1,8 +1,6 @@
 extern "C"
 {
 #include "node_api.h"
-#include "operator_api.h"
-#include "operator_types.h"
 }
  
 #include <iostream>
@@ -37,7 +35,8 @@ int run(void *dora_context)
     try {
         IMU.setPort(serial_port);
         IMU.setBaudrate(serial_baud);
-        IMU.setTimeout(serial::Timeout::simpleTimeout(1000));
+        serial::Timeout timeout = serial::Timeout::simpleTimeout(1000);
+        IMU.setTimeout(timeout);
         IMU.open();
         if (IMU.isOpen()) {
             IMU.write("\xA5\x5A\x04\x01\x05\xAA\n");
@@ -92,7 +91,7 @@ int run(void *dora_context)
                 char* non_const_char_ptr = new char[json_str.size() + 1];
                 std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
 
-
+                std::string out_id = "data";
                 int result = dora_send_output(dora_context, &out_id[0], out_id.length(), reinterpret_cast<char*>(non_const_char_ptr), json_str.size());
                 if (result != 0)
                 {
