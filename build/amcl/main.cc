@@ -285,13 +285,13 @@ int run(void *dora_context)
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
                 std::string json_str(data_ptr, data_len);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
                 replace_null_with_nan(json_str);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 geometry_msgs::Twist twist = geometry_msgs::Twist::from_json(json_obj);
-                printf("linear x: %f\n", twist.linear.x);
-                printf("angular z: %f\n", twist.angular.z);
+                //printf("linear x: %f\n", twist.linear.x);
+                //printf("angular z: %f\n", twist.angular.z);
                 //std::vector<unsigned char> data;
                 //for (size_t i = 0; i < data_len; i++)
                 //{

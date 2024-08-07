@@ -38,7 +38,7 @@ public:
         std::vector<int> obstacle_x, obstacle_y;
 
         // 打开PGM文件
-        std::string image_path = "../1.pgm";
+        std::string image_path = "/home/sunny/dora_nav/build/nav/1.pgm";
         std::ifstream file(image_path);
         if (!file) {
             std::cerr << "Failed to open image file: " << image_path << std::endl;
@@ -99,7 +99,7 @@ public:
 
         // 检查路径文件是否存在
         std::vector<std::vector<int>> path;
-        std::ifstream path_file("build/teb/path.csv");
+        std::ifstream path_file("/home/sunny/dora_nav/build/teb/path.csv");
         if (!path_file.is_open()) {
             printf("Path file not found! Run A_star.\n");
             path = A_star(start_x, start_y, goal_x, goal_y);
@@ -107,7 +107,7 @@ public:
                 std::cerr << "No path found!" << std::endl;
                 return {{}, {}, 0};
             }
-            std::ofstream path_file_out("build/teb/path.csv");
+            std::ofstream path_file_out("/home/sunny/dora_nav/build/teb/path.csv");
             for (const auto& point : path) {
                 path_file_out << point[0] << "," << point[1] << "\n";
             }

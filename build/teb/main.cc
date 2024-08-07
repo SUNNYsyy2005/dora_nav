@@ -266,9 +266,9 @@ int run(void *dora_context)
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
                 std::string json_str(data_ptr, data_len);
-                printf("json_str: %s\n", json_str.c_str());
-                replace_null_with_nan(json_str);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
+                //replace_null_with_nan(json_str);
+                //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 /* unsigned char* uchar_ptr = reinterpret_cast<unsigned char*>(data_ptr);
                 std::vector<unsigned char> uchar_vec(uchar_ptr, uchar_ptr + data_len);
@@ -278,26 +278,26 @@ int run(void *dora_context)
                     data.push_back(*(data_ptr + i));
                 } */
                 scan = sensor_msgs::LaserScan::from_json(json_obj);
-                printf("seq: %d\n", scan.header.seq);
+                //printf("seq: %d\n", scan.header.seq);
                 printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
-                printf("frame_id: %s\n", scan.header.frame_id.c_str());
-                printf("angle_min: %f\n", scan.angle_min);
-                printf("angle_max: %f\n", scan.angle_max);
-                printf("angle_increment: %f\n", scan.angle_increment);
-                printf("time_increment: %f\n", scan.time_increment);
-                printf("scan_time: %f\n", scan.scan_time);
-                printf("range_min: %f\n", scan.range_min);
-                printf("range_max: %f\n", scan.range_max);
-                printf("ranges: ");
-                for (float range : scan.ranges) {
-                    printf("%f ", range);
-                }
-                printf("\n");
-                printf("intensities: ");
-                for (float intensity : scan.intensities) {
-                    printf("%f ", intensity);
-                }
-                printf("\n  ");
+                //printf("frame_id: %s\n", scan.header.frame_id.c_str());
+                //printf("angle_min: %f\n", scan.angle_min);
+                //printf("angle_max: %f\n", scan.angle_max);
+                //printf("angle_increment: %f\n", scan.angle_increment);
+                //printf("time_increment: %f\n", scan.time_increment);
+                //printf("scan_time: %f\n", scan.scan_time);
+                //printf("range_min: %f\n", scan.range_min);
+                //printf("range_max: %f\n", scan.range_max);
+                //printf("ranges: ");
+                //for (float range : scan.ranges) {
+                //    printf("%f ", range);
+                //}
+                //printf("\n");
+                //printf("intensities: ");
+                //for (float intensity : scan.intensities) {
+                //    printf("%f ", intensity);
+                //}
+                //printf("\n  ");
             }
 
             

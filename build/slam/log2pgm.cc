@@ -159,7 +159,7 @@ public:
         0,          // detectionMargin
         145)         // offsetMillimeters
     {
-        distance_no_detection_mm = 11000;
+        distance_no_detection_mm = 20000;
         printf("@%f@\n",distance_no_detection_mm);
     }
 };
