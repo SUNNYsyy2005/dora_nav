@@ -11,11 +11,12 @@ extern "C"
 #include <fstream>
 #include <cmath>
 #include <ctime>
-
+#include <chrono>
 
 // 存储上一次的里程计信息
 nav_msgs::Odometry last_odometry;
 nav_msgs::Odometry cur_odometry;
+double last_time=0;
 
 void scanCallback(const sensor_msgs::LaserScan* data) {
     //if (last_odometry == nullptr) {
@@ -29,11 +30,13 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     auto last_orientation = last_pose.orientation;
     auto cur_orientation = cur_pose.orientation;
 
-    // 计算时间差
-    double current_time = cur_odometry.header.stamp.sec + cur_odometry.header.stamp.nsec / 1e9;
-    double last_time = last_odometry.header.stamp.sec + last_odometry.header.stamp.nsec / 1e9;
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration) - std::chrono::duration_cast<std::chrono::nanoseconds>(seconds);
+    double current_time = seconds.count() + nanoseconds.count() / 1e9;
     double time_diff = current_time - last_time;
-
+    last_time = current_time;
     // 提取上一次和当前的位置和方向
     auto last_position = last_pose.position;
     auto cur_position = cur_pose.position;
@@ -61,12 +64,13 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     // 将激光雷达的距离数据转换为毫米单位
     std::vector<int> distances_mm;
     for (const auto& distance : data->ranges) {
-        distances_mm.push_back(distance != std::numeric_limits<float>::infinity() ? static_cast<int>(distance * 1000) : 11000);
+        //printf("distance: %f\n", distance);
+        distances_mm.push_back(/*distance != std::numeric_limits<float>::infinity()*/(!std::isnan(distance)) ? round(distance * 1000) : 11000);
     }
     printf("time_diff: %f, linear_displacement_mm: %f, angular_displacement_degrees: %f\n", time_diff, linear_displacement_mm, angular_displacement_degrees);
     // 格式化数据
-    std::ofstream file("laser_data.dat", std::ios::app);
-    file << time_diff << " " << linear_displacement_mm << " " << angular_displacement_degrees << " ";
+    std::ofstream file("/home/sunny/dora_nav/build/slam/build/laser_data.dat", std::ios::app);
+    file<< time_diff << " " << linear_displacement_mm << " " << angular_displacement_degrees << " ";
     for (const auto& distance : distances_mm) {
         file << distance << " ";
     }
@@ -78,6 +82,11 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
 int counter = 0;
 int run(void *dora_context)
 {
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration) - std::chrono::duration_cast<std::chrono::nanoseconds>(seconds);
+    double last_time = seconds.count() + nanoseconds.count() / 1e9;
     printf("[c node] running...\n");
     sensor_msgs::LaserScan scan;
     nav_msgs::Odometry odom;
@@ -99,6 +108,7 @@ int run(void *dora_context)
             size_t id_len;
             read_dora_input_id(event, &id_ptr, &id_len);
             std::string id(id_ptr, id_len);
+            printf("[c node] received input event: %s\n", id.c_str());
             char *data_ptr;
             size_t data_len;
             read_dora_input_data(event, &data_ptr, &data_len);
@@ -108,11 +118,10 @@ int run(void *dora_context)
                 data.push_back(*(data_ptr + i));
             }
             printf("[c node] received input event: %s\n", id.c_str());
-            if(id == "tick"){
-                //printf("tick\n");
-                odom.header.stamp.sec = 0;
-                odom.header.stamp.nsec = counter*100000000;
-                odom.pose.pose.position.x = 0.1;
+            if(strncmp(id.c_str(), "scan", 4) == 0){
+                odom.header.stamp.sec = seconds.count();
+                odom.header.stamp.nsec = nanoseconds.count();
+                odom.pose.pose.position.x = 0*counter;
                 odom.pose.pose.position.y = 0;
                 odom.pose.pose.position.z = 0;
                 odom.pose.pose.orientation.x = 0;
@@ -120,11 +129,10 @@ int run(void *dora_context)
                 odom.pose.pose.orientation.z = 0;
                 last_odometry = cur_odometry;
                 cur_odometry = odom;
-            }
-            else if(id == "scan"){
+                counter++;
                 std::string json_str(data_ptr, data_len);
                 //printf("json_str: %d\n", data_len);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
                 //replace_null_with_nan(json_str);
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
@@ -154,13 +162,12 @@ int main()
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
 
     auto dora_context = init_dora_context_from_env();
-    last_odometry = new nav_msgs::Odometry();
-    last_odometry->pose.pose.position.x = 0;
-    last_odometry->pose.pose.position.y = 0;
-    last_odometry->pose.pose.position.z = 0;
-    last_odometry->pose.pose.orientation.x = 0;
-    last_odometry->pose.pose.orientation.y = 0;
-    last_odometry->pose.pose.orientation.z = 0;
+    last_odometry.pose.pose.position.x = 0;
+    last_odometry.pose.pose.position.y = 0;
+    last_odometry.pose.pose.position.z = 0;
+    last_odometry.pose.pose.orientation.x = 0;
+    last_odometry.pose.pose.orientation.y = 0;
+    last_odometry.pose.pose.orientation.z = 0;
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
     auto ret = run(dora_context);
     free_dora_context(dora_context);

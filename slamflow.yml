@@ -1,3 +1,7 @@
+communication:
+  _unstable_local:
+    UnixDomain
+
 nodes:
   - id: lidar
     custom:
@@ -22,7 +26,7 @@ nodes:
     custom:
       source: build/slam/build/test
       inputs:
-        tick: dora/timer/millis/100
+        #tick: dora/timer/millis/100
         scan: lidar/scan
         #imu: imu/data
       #outputs:

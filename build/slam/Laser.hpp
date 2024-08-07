@@ -62,7 +62,7 @@ public:
         int scan_size,
         float scan_rate_hz,
         float detection_angle_degrees,
-        float distance_no_detection_mm,
+        float distance_no_detection_mm=11000,
         int detection_margin = 0,
         float offset_mm = 0.
         )
@@ -145,7 +145,9 @@ public:
     * 
     */
     Lidar1(int detection_margin = 0, float offset_mm = 0) : 
-    Laser(1080, 40, 269.9994818973878, 11000, detection_margin, offset_mm) { }
+    Laser(2000, 10, 360, 11000, detection_margin, offset_mm) {
+        printf("%f\n",distance_no_detection_mm);
+     }
     
     /**
     * Builds an empty URG04LX object (all parameters zero).

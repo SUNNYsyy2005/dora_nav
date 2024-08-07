@@ -42,7 +42,7 @@ namespace lslidar_driver {
                                                                                        point_cloud_xyzi_bak_(new pcl::PointCloud<pcl::PointXYZI>),       
                                                                                        scan_msg(new sensor_msgs::LaserScan),
                                                                                        scan_msg_bak(new sensor_msgs::LaserScan){
-        printf("*********** CX4.0 ROS driver version: %s ***********", lslidar_cx_driver_VERSION);
+        //printf("*********** CX4.0 ROS driver version: %s ***********", lslidar_cx_driver_VERSION);
         //ROS_INFO("*********** CX4.0 ROS driver version: %s ***********", lslidar_cx_driver_VERSION);
     }
 
@@ -83,7 +83,7 @@ namespace lslidar_driver {
         pnh.param("horizontal_angle_resolution", horizontal_angle_resolution, 0.18);
         pnh.param<bool>("use_time_service", use_time_service, false);
         pnh.param<bool>("publish_scan", publish_scan, true);
-        pnh.param<bool>("coordinate_opt", coordinate_opt, false);
+        pnh.param<bool>("coordinate_opt", coordinate_opt, true);
         pnh.param<std::string>("pointcloud_topic", pointcloud_topic, "lslidar_point_cloud");
         inet_aton(lidar_ip_string.c_str(), &lidar_ip);
         printf("Only accepting packets from IP address: %s\n", lidar_ip_string.c_str());
@@ -921,13 +921,13 @@ namespace lslidar_driver {
     }
 
     bool LslidarDriver::poll(void *dora_context) {
-        printf("start poll\n");
+        //printf("start poll\n");
         // Allocate a new shared pointer for zero-copy sharing with other nodelets.
         lslidar_cx_driver::LslidarPacketPtr packet(new lslidar_cx_driver::LslidarPacket());
         // Since the rslidar delivers data at a very high rate, keep
         // reading and publishing scans as fast as possible.
         while (true) {
-            printf("%d\n",sizeof(packet));
+            //printf("%d\n",sizeof(packet));
             int rc = msop_input_->getPacket(packet);
             if (rc == 0) {
                 break;
@@ -942,12 +942,12 @@ namespace lslidar_driver {
             printf("checkPacketValidity failed\n");
             return false;
         }  
-        printf("checkPacketValidity success\n");
+        //printf("checkPacketValidity success\n");
         packet_num++;
 
         //decode the packet
         decodePacket(packet);
-        printf("decodePacket success\n");
+        //printf("decodePacket success\n");
         // find the start of a new revolution
         // if there is one, new_sweep_start will be the index of the start firing,
         // otherwise, new_sweep_start will be FIRINGS_PER_PACKET.
@@ -1524,10 +1524,10 @@ namespace lslidar_driver {
             R1 = R1_;
             conversionAngle = conversionAngle_;
             lidar_type = "C16";
-            printf("lidar type: C16\n");
+            //printf("lidar type: C16\n");
             //ROS_INFO("lidar type: C16");
             if (pkt->data[1210] == 0x39)  return_mode = 2;
-            printf("return mode: %d\n", return_mode);
+            //printf("return mode: %d\n", return_mode);
             //ROS_INFO("return mode: %d", return_mode);
         } else if (pkt->data[1211] == 0x11) {
             for (int i = 0; i < 16; ++i) {

@@ -275,9 +275,9 @@ namespace sensor_msgs {
     }
 
     void print(const LaserScan& scan) {
-        printf("seq: %d\n", scan.header.seq);
+        //printf("seq: %d\n", scan.header.seq);
         printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
-        printf("frame_id: %s\n", scan.header.frame_id.c_str());
+        /* printf("frame_id: %s\n", scan.header.frame_id.c_str());
         printf("angle_min: %f\n", scan.angle_min);
         printf("angle_max: %f\n", scan.angle_max);
         printf("angle_increment: %f\n", scan.angle_increment);
@@ -293,8 +293,8 @@ namespace sensor_msgs {
         printf("intensities: ");
         for (float intensity : scan.intensities) {
             printf("%f ", intensity);
-        }
-        printf("\n");
+        } */
+        //printf("\n");
     }
 
     class Imu {

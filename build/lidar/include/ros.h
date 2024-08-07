@@ -56,9 +56,9 @@ namespace Ros {
         void publish(boost::shared_ptr<sensor_msgs::LaserScan> pkt,void* dora_context) {    
             // sensor_msgs::LaserSca scan = pkt.px;
             auto scan = pkt;
-            printf("seq: %d\n", scan->header.seq);
+            //printf("seq: %d\n", scan->header.seq);
             printf("stamp: %lld.%lld\n", scan->header.stamp.sec, scan->header.stamp.nsec);
-            printf("frame_id: %s\n", scan->header.frame_id.c_str());
+            /* printf("frame_id: %s\n", scan->header.frame_id.c_str());
             printf("angle_min: %f\n", scan->angle_min);
             printf("angle_max: %f\n", scan->angle_max);
             printf("angle_increment: %f\n", scan->angle_increment);
@@ -77,10 +77,10 @@ namespace Ros {
             }
             printf("\n  ");
             printf("\n");
-            printf("publish packet\n");
+            printf("publish packet\n"); */
             nlohmann::json json_obj = scan->to_json();
             std::string json_str = json_obj.dump();
-            printf("%s\n", json_str.c_str());
+            //printf("%s\n", json_str.c_str());
             const char* char_ptr = json_str.c_str();
             char* non_const_char_ptr = new char[json_str.size() + 1];
             std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);

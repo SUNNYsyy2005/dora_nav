@@ -40,10 +40,10 @@ Change log:
 static const int MAP_SIZE_PIXELS        = 800;
 static const double MAP_SIZE_METERS     =  32;
 
-static const int SCAN_SIZE 		        = 1080;
+static const int SCAN_SIZE 		        = 2001;
 
 // Arbitrary maximum length of line in input logfile
-#define MAXLINE 10000
+#define MAXLINE 1000000
 
 #include <iostream>
 #include <vector>
@@ -121,15 +121,18 @@ static void load_data(
     
     while (fgets(s, MAXLINE, fp))
     {
+
         char * cp = strtok(s, " ");
                
         double * odometry = new double[3];
         odometry[0] = strtod(cp, &cp);
+        printf("%f\n",odometry[0]);
         skiptok(&cp);        
         odometry[1] = strtod(cp, &cp);
+        printf("%f\n",odometry[1]);
         skiptok(&cp);
         odometry[2] = strtod(cp, &cp);
-        
+        printf("%f\n",odometry[2]);        
         odometries.push_back(odometry);
         
         int * scanvals = new int [SCAN_SIZE];
@@ -153,9 +156,11 @@ class MinesURG04LX : public Lidar1
 public:
     
     MinesURG04LX(void): Lidar1(
-        70,          // detectionMargin
+        0,          // detectionMargin
         145)         // offsetMillimeters
     {
+        distance_no_detection_mm = 11000;
+        printf("@%f@\n",distance_no_detection_mm);
     }
 };
 
@@ -281,7 +286,7 @@ public:
     
 private:
     
-    char progBar[1000]; // more than we should ever need
+    char progBar[3000]; // more than we should ever need
     int min;
     int max;
     int span;
@@ -341,6 +346,7 @@ int main( int argc, const char** argv )
         
     // Create SLAM object
     MinesURG04LX laser;
+    
     SinglePositionSLAM * slam = random_seed ?
     (SinglePositionSLAM*)new RMHC_SLAM(laser, MAP_SIZE_PIXELS, MAP_SIZE_METERS, random_seed) :
     (SinglePositionSLAM*)new Deterministic_SLAM(laser, MAP_SIZE_PIXELS, MAP_SIZE_METERS);
@@ -389,7 +395,7 @@ int main( int argc, const char** argv )
         trajectory.push_back(v);     
         
         // Tame impatience
-        progbar->updateAmount(scanno);
+        progbar->updateAmount(scanno+1);
         printf("\r%s", progbar->str());
         fflush(stdout);
     }
@@ -418,7 +424,7 @@ int main( int argc, const char** argv )
     // Save map and trajectory as PGM file    
     
     char filename[100];
-    sprintf(filename, "../nav/%s.pgm", dataset);
+    sprintf(filename, "/home/sunny/dora_nav/build/nav/%s.pgm", dataset);
     printf("\nSaving map to file %s\n", filename);
     
     FILE * output = fopen(filename, "wt");

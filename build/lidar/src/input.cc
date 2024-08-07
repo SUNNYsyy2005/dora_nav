@@ -56,7 +56,7 @@ namespace lslidar_driver {
         if (!devip_str_.empty()) {
             inet_aton(devip_str_.c_str(), &devip_);
         }
-        printf("Opening UDP socket port: %d\n", port);
+        //printf("Opening UDP socket port: %d\n", port);
         //ROS_INFO_STREAM("Opening UDP socket port: " << port);
         sockfd_ = socket(PF_INET, SOCK_DGRAM, 0);
         if (sockfd_ == -1) {
@@ -116,21 +116,21 @@ namespace lslidar_driver {
         fds[0].fd = sockfd_;
         fds[0].events = POLLIN; //有数据可读
         fds[0].revents = 0;
-        printf("sockfd_:%d\n", sockfd_);
-        printf("events:%d\n", fds[0].events);
+        //printf("sockfd_:%d\n", sockfd_);
+        //printf("events:%d\n", fds[0].events);
 
         static const int POLL_TIMEOUT = 3000;  // one second (in msec)
-        printf("POLL_TIMEOUT:%d\n", POLL_TIMEOUT);
+        //printf("POLL_TIMEOUT:%d\n", POLL_TIMEOUT);
         sockaddr_in sender_address{};   //存储发送者的地址信息
         socklen_t sender_address_len = sizeof(sender_address);
-        printf("getPacket\n");
+        //printf("getPacket\n");
         while (flag == 1)
         {
             // Receive packets that should now be available from the
             // socket using a blocking read.
             // poll() until input available
             do {
-                printf("poll begin\n");
+                //printf("poll begin\n");
                 
                 int retval = poll(fds, 1, POLL_TIMEOUT);
                 
@@ -161,9 +161,9 @@ namespace lslidar_driver {
                     //ROS_ERROR("poll() reports lslidar error");
                     return 1;
                 }
-                printf("poll end\n");
+                //printf("poll end\n");
             } while ((fds[0].revents & POLLIN) == 0);   //从socket读取数据，将数据存储到pkt的数据部分中
-            printf("recvfrom begin\n");
+            //printf("recvfrom begin\n");
             ssize_t nbytes = recvfrom(sockfd_, pkt->data.data(), packet_size_, 0, (sockaddr *) &sender_address,
                                       &sender_address_len);
 
@@ -189,11 +189,11 @@ namespace lslidar_driver {
 
             //ROS_DEBUG_STREAM("incomplete lslidar packet read: " << nbytes << " bytes");
         }
-        printf("getPacket end\n");
+        //printf("getPacket end\n");
         if (flag == 0) {
             abort();
         }
-        printf("flag not zero\n");
+        //printf("flag not zero\n");
         // Average the times at which we begin and end reading.  Use that to
         // estimate when the scan occurred. Add the time offset.
 
