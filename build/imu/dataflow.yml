@@ -1,0 +1,6 @@
+nodes:
+  - id: imu
+    custom:
+      source: build/test
+      outputs:
+        - data

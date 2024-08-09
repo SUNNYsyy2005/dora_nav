@@ -8,5 +8,8 @@ build/teb/build
 build/teb/path.csv
 
 build/lidar/build
+build/imu/build
+
+**/target
 
 out/
