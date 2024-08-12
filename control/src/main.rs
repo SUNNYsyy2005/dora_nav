@@ -18,10 +18,6 @@ use std::io::Write;
 use std::sync::mpsc;
 use std::time::Duration;
 
-// static LANGUAGE: &str = "Rust";
-// static PLATFORM: &str = "i7-8750@2.20GHz";
-// static NAME: &str = "dora-rs daemon Rust";
-
 // serial port
 static SERIAL_PORT: &str = "/dev/ttyUSB0";
 

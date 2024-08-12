@@ -4,9 +4,8 @@ nodes:
       source: build/imu/build/test
       outputs:
         - data
-  - id: rust-sink
-    build: cargo build -p rust-dataflow-example-sink
-    path: sink/target/debug/rust-dataflow-example-sink
+  - id: control
+    path: control/target/debug/control
     inputs:
       message: imu/data
 
