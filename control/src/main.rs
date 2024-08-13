@@ -15,13 +15,14 @@ use dora_node_api::arrow::buffer::ScalarBuffer;
 use json_data::ImuData;
 use serial::SerialPort;
 use std::io::Write;
-use std::sync::mpsc;
+use tokio::sync::mpsc;
 use std::time::Duration;
 
 // serial port
 static SERIAL_PORT: &str = "/dev/ttyUSB0";
 
-fn main() -> eyre::Result<()> {
+#[tokio::main]
+async fn main() -> eyre::Result<()> {
     // 连接串口
     const COM_SETTINGS: serial::PortSettings = serial::PortSettings {
         baud_rate: serial::Baud115200,
@@ -38,10 +39,10 @@ fn main() -> eyre::Result<()> {
         .map_err(|_| Error::SetTimeout)?;
 
     // 消息通道
-    let (tx, rx) = mpsc::channel::<Vec<u8>>();
+    let (tx, mut rx) = mpsc::channel::<Vec<u8>>(100);
 
     tokio::spawn(async move {
-        while let Ok(data) = rx.recv() {
+        while let Some(data) = rx.recv().await {
             com.write_all(&data).ok();
         }
     });
@@ -71,7 +72,7 @@ fn main() -> eyre::Result<()> {
                         if let Ok(imu) = serde_json::from_str::<ImuData>(s) {
                             let data =
                                 command::send_speed_to_x4chassis(imu.linear.x, 0.0, imu.angular.z);
-                            tx.send(data).ok();
+                            tx.send(data).await .ok();
                         }
                     }
                     Err(e) => println!("failed: {}", e),
@@ -80,7 +81,7 @@ fn main() -> eyre::Result<()> {
             Event::InputClosed { id } => {
                 println!("Input `{id}` was closed");
             }
-            other => eprintln!("Received unexpected input: {other:?}"),
+            other => eprintln!("Receive d unexpected input: {other:?}"),
         }
     }
 
