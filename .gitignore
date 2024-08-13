@@ -9,7 +9,7 @@ build/slam/slambuild/**
 build/slam/laser_data.dat
 
 build/teb/build/**
-build/teb/path.csv
+build/teb/*.csv
 
 build/lidar/build/**
 
