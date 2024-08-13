@@ -11,16 +11,57 @@ sudo chmod 777 /dev/ttyUSB0
 ```
 ### lidar节点
 lidar为镭神16线激光雷达，官方驱动网址为https://github.com/Lslidar/Lslidar_ROS1_driver.git
+
 设置有线连接为手动
 地址为192.168.1.102
 子网掩码为255.255.255.0
 网关为1.1.1.1
 
+```sh
+cd build/lidar
+mkdir build && cd build
+cmake ..
+make
+```
+
 #### 调试雷达？
 ##### 方案一
 可以参考官网的ros驱动版本
 ##### 方案二
+可以参考笔者去ros化版本，仓库地址https://github.com/SUNNYsyy2005/Lslidar_non_ros/
 
+
+### slam节点
+```sh
+cd build/slam
+make install
+cd build
+cmake ..
+make
+```
+
+### nav节点
+```sh
+cd build/nav
+make install
+```
+
+### teb节点
+```sh
+cd build/teb
+mkdir build && cd build
+cmake ..
+make
+```
+
+### amcl节点
+
+```sh
+cd build/lidar
+mkdir build && cd build
+cmake ..
+make
+```
 
 ## slam建图
 #### 运行
@@ -39,6 +80,11 @@ main.cc文件
 log2pgm.cc文件
 
 该文件主要是根据laser_data.dat日志文件信息，采用slam方法建图
+###### 运行
+
+```sh
+make run
+```
 
 注：该代码改自https://github.com/simondlevy/BreezySLAM/
 
@@ -62,6 +108,23 @@ dora start dataflow.yml
 该部分代码对起始点和目标点之间路径采用A*算法进行全局规划，生成path.csv文件
 
 注：该代码改自https://github.com/wql9/Navigation-planning-in-dynamic-and-static-environment/
+##### 设置目标点
+
+```sh
+cd build/nav
+make run 400 400 300 300
+```
+前两个参数为起始点坐标(默认为400 400，即图片最中间)
+
+后两个参数为目标点坐标(默认为200 250)
+
+
+以下几种命令都正确
+```sh
+make run #都使用默认值
+make run 300 300 #只设置目标点
+```
+
 
 #### 局部路径规划 main.cc文件
 机器人局部路径规划的代码主要在teb目录下，main.cc文件为起始文件
