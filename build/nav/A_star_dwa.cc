@@ -38,7 +38,7 @@ public:
         std::vector<int> obstacle_x, obstacle_y;
 
         // 打开PGM文件
-        std::string image_path = "/home/sunny/dora_nav/build/nav/1.pgm";
+        std::string image_path = "/home/sunny/dora_nav/build/nav/laser_data.pgm";
         std::ifstream file(image_path);
         if (!file) {
             std::cerr << "Failed to open image file: " << image_path << std::endl;
@@ -46,47 +46,64 @@ public:
         }
         printf("Open image file successfully!\n");
         // 读取PGM文件头
-        std::string magic_number;
+        std::string line, magic_number;
         int width, height, max_val;
+
+        // 读取 PGM 文件头
+        std::getline(file, magic_number);
+        if (magic_number != "P2") {
+            std::cerr << "Unsupported PGM format: " << magic_number << std::endl;
+            return {{}, {}, 0};
+        }
+
         // 跳过注释行
-        file >> magic_number;
-        file.ignore(1); // 跳过一个字符（通常是换行符）
-        std::string line;
         std::getline(file, line);
         while (line[0] == '#') {
-            std::cout<<"line: "<<line<<std::endl;
+            std::cout << "line: " << line << std::endl;
             std::getline(file, line);
         }
-        std::cout<<"line: "<<line<<std::endl;
+        std::cout << "line: " << line << std::endl;
         // 读取宽度、高度和最大灰度值
         std::istringstream iss(line);
         iss >> width >> height;
         file >> max_val;
         file.ignore(1); // 跳过一个字符（通常是换行符）
 
-        if (magic_number != "P5") {
-            std::cerr << "Unsupported PGM format: " << magic_number << std::endl;
-            return {{}, {}, 0};
-        }
-
         // 读取图像数据
         std::vector<uint8_t> img_data(width * height);
-        file.read(reinterpret_cast<char*>(img_data.data()), img_data.size());
+        for (int i = 0; i < width * height; ++i) {
+            int pixel;
+            file >> pixel;
+            img_data[i] = static_cast<uint8_t>(pixel);
+        }
+
         printf("Read image data successfully!\n");
         printf("width: %d, height: %d\n", width, height);
         // 遍历图像中的每个像素
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
-                if (img_data[y * width + x] < 254) {
+                if (img_data[y * width + x] < 254/2) {
                     obstacle_x.push_back(x);
                     obstacle_y.push_back(y);
-                    if(x==330 && y==300){
-                        printf("error");
-                    }
-                    //printf("x: %d, y: %d\n", x, y);
+                    img_data[y * width + x] = 0;
+                    //if(x==330 && y==300){
+                    //    printf("error");
+                    //}
+                    printf("x: %d, y: %d\n", x, y);
+                }else{
+                    img_data[y * width + x] = 255;
                 }
             }
         }
+        std::ofstream output_file("/home/sunny/dora_nav/build/nav/output.pgm");
+        output_file << "P2\n" << width << " " << height << " 255\n";
+        for (int i = 0; i < width * height; ++i) {
+            output_file << static_cast<int>(img_data[i]) << " ";
+            if ((i + 1) % width == 0) {
+                output_file << "\n";
+            }
+        }
+        output_file.close();    
 
         // 构建障碍物 KD 树
         flann::Matrix<int> dataset(new int[obstacle_x.size() * 2], obstacle_x.size(), 2);

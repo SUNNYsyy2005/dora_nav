@@ -10,7 +10,7 @@ double getAngle(int x1, int y1, int x2, int y2) {
     }
     return angle;
 }
-
+//g++ -o main main.cc -I/usr/local/include -L/usr/local/lib -llz4 -lm
 int main() {
     usleep(100000); // 否则是-999999
     int start_x = 400, start_y = 400;

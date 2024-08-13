@@ -1,0 +1,9 @@
+nodes:
+  - id: amcl
+    custom:
+      source: build/amcl/build/test
+      inputs:
+        tick: dora/timer/millis/100
+      outputs:
+        - pose
+

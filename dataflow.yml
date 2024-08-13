@@ -30,3 +30,8 @@ nodes:
         scan: lidar/scan
       outputs:
         - twist
+  - id: rust-sink
+    build: cargo build -p rust-dataflow-example-sink
+    path: sink/target/debug/rust-dataflow-example-sink
+    inputs:
+      message: teb/twist

@@ -431,9 +431,9 @@ int main( int argc, const char** argv )
     
     fprintf(output, "P2\n%d %d 255\n", MAP_SIZE_PIXELS, MAP_SIZE_PIXELS);
     
-    for (int y=0; y<MAP_SIZE_PIXELS; y++)
+    for (int x=MAP_SIZE_PIXELS-1; x>=0; x--)
     {
-        for (int x=0; x<MAP_SIZE_PIXELS; x++)
+        for (int y=0; y<MAP_SIZE_PIXELS; y++)
         {
             fprintf(output, "%d ", mapbytes[coords2index(x, y)]);
         }

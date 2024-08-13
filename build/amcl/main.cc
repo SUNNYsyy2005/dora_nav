@@ -169,9 +169,9 @@ pf_vector_t random_pose_init(void *data) {
 int run(void *dora_context)
 {
     unsigned char counter = 0;
-    msg2.x=1000;msg2.y=1000;msg2.theta=0;
+    msg2.x=400;msg2.y=400;msg2.theta=0;
     map = map_alloc();
-    map_load_occ(map, "/home/sunny/dora_nav/build/amcl/map/1.pgm", 0.04,0);
+    map_load_occ(map, "/home/sunny/dora_nav/build/nav/laser_data.pgm", 0.04,1);
 
     printf("map size: %d %d\n", map->size_x, map->size_y);
     // 设置AMCL的激光雷达传感器模型

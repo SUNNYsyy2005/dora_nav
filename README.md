@@ -1,4 +1,26 @@
 # dora_nav
+## 前置安装
+### dora安装
+```sh
+git clone https://github.com/dora-rs/dora/
+...
+```
+### imu节点
+```sh
+sudo chmod 777 /dev/ttyUSB0
+```
+### lidar节点
+lidar为镭神16线激光雷达，官方驱动网址为https://github.com/Lslidar/Lslidar_ROS1_driver.git
+设置有线连接为手动
+地址为192.168.1.102
+子网掩码为255.255.255.0
+网关为1.1.1.1
+
+#### 调试雷达？
+##### 方案一
+可以参考官网的ros驱动版本
+##### 方案二
+
 
 ## slam建图
 #### 运行

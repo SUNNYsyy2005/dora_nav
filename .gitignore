@@ -1,7 +1,8 @@
 build/amcl/build/**
+build/amcl/*.pgm
 
 build/nav/build/**
-build/nav/laser_data.pgm
+build/nav/*.pgm
 
 build/slam/build/**
 build/slam/slambuild/**
@@ -18,5 +19,5 @@ build/imu/out/**
 **/target
 
 **/out/
-
+**/out.bak/
 **/**/CMakeLists.txt

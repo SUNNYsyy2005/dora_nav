@@ -39,7 +39,7 @@
 int map_load_occ(map_t *map, const char *filename, double scale, int negate)
 {
   FILE *file;
-  char magic[3];
+  char magic[30];
   int i, j;
   int ch, occ;
   int width, height, depth;
@@ -53,15 +53,11 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
     return -1;
   }
   int tt=0;
-  FILE *file2 = fopen("output.txt", "a"); // 使用 "a" 模式以追加的方式打开文件
-  if (file2 == NULL) {
-            printf("打开文件失败\n");
-            return -1; // 如果文件无法打开，则退出函数
-  }
   // Read ppm header
   
-  if ((fscanf(file, "%2s \n", magic) != 1) || (strcmp(magic, "P5") != 0))
+  if ((fscanf(file, "%s", magic) != 1) || (strcmp(magic, "P2") != 0))
   {
+    printf("magic: %s\n", magic);
     fprintf(stderr, "incorrect image format; must be PGM/binary");
     fclose(file);
     return -1;
@@ -73,7 +69,7 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
   ungetc(ch, file);
 
   // Read image dimensions
-  if(fscanf(file, " %d %d \n %d \n", &width, &height, &depth) != 3)
+  if(fscanf(file, "%d %d %d \n", &width, &height, &depth) != 3)
   {
     fprintf(stderr, "Failed ot read image dimensions");
     return -1;
@@ -101,16 +97,18 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
   {
     for (i = 0; i < width; i++)
     {
-      ch = fgetc(file);
+      fscanf(file, "%d", &ch);
+      //ch = //fgetc(file);
       
       // Black-on-white images
       if (!negate)
       {
-        if (ch < 100){
+        if (ch < 130){
           tt++;
           occ = +1;
+          //printf("j: %d i:%d@\n", j,i);
         } 
-        else if (ch >= depth-1){
+        else if (ch >= 200){
           //fprintf(file2, "j: %d i:%d\n", j, i);
           
           //printf("j: %d i:%d\n", j,i);
@@ -127,7 +125,7 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
       // White-on-black images
       else
       {
-        if (ch < depth / 4)
+        if (ch < depth / 2)
           occ = -1;
         else if (ch > 3 * depth / 4)
           occ = +1;
@@ -141,10 +139,9 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
       cell->occ_state = occ;
     }
   }
-  fclose(file2);
   printf("tt: %d\n", tt);
   fclose(file);
-  FILE *pgmFile = fopen("output.pgm", "w");
+  FILE *pgmFile = fopen("/home/sunny/dora_nav/build/amcl/output.pgm", "w");
   if (pgmFile == NULL) {
       fprintf(stderr, "Cannot open file to write\n");
       exit(1);
