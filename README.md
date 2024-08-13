@@ -57,7 +57,7 @@ make
 ### amcl节点
 
 ```sh
-cd build/lidar
+cd build/amcl
 mkdir build && cd build
 cmake ..
 make
