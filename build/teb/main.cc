@@ -27,8 +27,8 @@ const int width = 500;
 const int height = 500;
 const int map_width = 800;
 const int map_height = 800;
-const int consider_width = 200;
-const int consider_height = 200;
+const int consider_width = 800;
+const int consider_height = 800;
 const double PI = 3.1415926;
 const double scale = 0.04;
 double GXtGY(double x){
@@ -43,7 +43,7 @@ int GXtMX(double x)
 }
 int GYtMY(double y)
 {
-    return (int)((((y-map_height/2) / consider_height)+0.7) * height);
+    return (int)((((y-map_height/2) / consider_height)+0.5) * height);
 }
 int MXtMY(int x)
 {
@@ -99,9 +99,9 @@ int run(void *dora_context)
         //}
         std::reverse(pathh.begin(), pathh.end());
          //打印路径以验证
-        for (const auto& point : pathh) {
-            std::cout << "Point: (" << point.first << ", " << point.second << ")" << std::endl;
-        }
+        //for (const auto& point : pathh) {
+        //    std::cout << "Point: (" << point.first << ", " << point.second << ")" << std::endl;
+        //}
     } else {
         std::cout << "Unable to open file" << std::endl;
     }

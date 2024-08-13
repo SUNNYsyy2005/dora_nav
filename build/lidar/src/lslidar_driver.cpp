@@ -1689,7 +1689,7 @@ namespace lslidar_driver {
             conversionAngle = conversionAngle_C16_3;
             distance_unit = 0.25;
             lidar_type = "c16_3";
-            printf("lidar type: c16_3, version 3.0\n");
+            printf("lidar type: c16, version 3.0\n");
             //ROS_INFO("lidar type: c16, version 3.0");
             if (pkt->data[1204] == 0x39) return_mode = 2;
             printf("return mode: %d\n", return_mode);

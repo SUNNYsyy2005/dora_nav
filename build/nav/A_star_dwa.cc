@@ -29,7 +29,7 @@ public:
     std::vector<Node*> closelist;
     int pathPointInterval;
 
-    Astar_DWA(int MAX_EDGE_LEN = 5000, int LIMIT_TRIAL = 500000) 
+    Astar_DWA(int MAX_EDGE_LEN = 2*800*800, int LIMIT_TRIAL = 50000000) 
         : MAX_EDGE_LEN(MAX_EDGE_LEN), LIMIT_TRIAL(LIMIT_TRIAL), minx(0), maxx(800), miny(0), maxy(800),
           robot_size(4), avoid_dist(4), r(10), obstree(nullptr), step_length(5), pathPointInterval(20) {}
 
@@ -82,19 +82,25 @@ public:
         // 遍历图像中的每个像素
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
-                if (img_data[y * width + x] < 254/2) {
+                if(x<start_x+step_length*8 && x>start_x-step_length*8 && y<start_y+step_length*8 && y>start_y-step_length*8){
+                    img_data[y * width + x] = 255;
+                    continue;
+                }
+                if (img_data[y * width + x] < 254/2 ) {
                     obstacle_x.push_back(x);
                     obstacle_y.push_back(y);
                     img_data[y * width + x] = 0;
                     //if(x==330 && y==300){
                     //    printf("error");
                     //}
-                    printf("x: %d, y: %d\n", x, y);
+                    //printf("x: %d, y: %d\n", x, y);
                 }else{
                     img_data[y * width + x] = 255;
                 }
             }
         }
+        img_data[start_y * width + start_x] = 0;
+        img_data[goal_y * width + goal_x] = 0;
         std::ofstream output_file("/home/sunny/dora_nav/build/nav/output.pgm");
         output_file << "P2\n" << width << " " << height << " 255\n";
         for (int i = 0; i < width * height; ++i) {
@@ -144,9 +150,20 @@ public:
 
         std::vector<int> path_x, path_y;
         for (const auto& point : path) {
+            img_data[point[1] * width + point[0]] = 0;
+
             path_x.push_back(point[0]);
             path_y.push_back(point[1]);
         }
+        std::ofstream output_file2("/home/sunny/dora_nav/build/nav/output2.pgm");
+        output_file2 << "P2\n" << width << " " << height << " 255\n";
+        for (int i = 0; i < width * height; ++i) {
+            output_file2 << static_cast<int>(img_data[i]) << " ";
+            if ((i + 1) % width == 0) {
+                output_file2 << "\n";
+            }
+        }
+        output_file2.close();  
 
         return {path_x, path_y, 1};
     }
@@ -190,7 +207,9 @@ public:
     }
 
     void search_path(Node* node, int goal_x, int goal_y) {
+        //printf("x: %d, y: %d\n", node->x, node->y);
         if (check_obs(node->x, node->y, *obstree)) {
+            //printf("check_obs failed!\n");
             return;
         }
 
@@ -207,6 +226,7 @@ public:
                 point = node;
             }
         } else {
+            //printf("@x: %d, y: %d\n", node->x, node->y);
             openlist.push_back(node);
         }
     }
@@ -220,11 +240,13 @@ public:
         flann::Matrix<float> dists_mat(&dists[0], 1, 1); 
 
         tree.knnSearch(query_mat, indices_mat, dists_mat, 1, flann::SearchParams(128));
-
-        if (indices[0] == 0) {
+        //printf("indices[0]: %d, dists[0]: %f\n", indices[0], dists[0]);
+        //printf("node_x: %d, node_y: %d\n", node_x, node_y);
+        //printf("obstacle_x: %d, obstacle_y: %d\n", tree.getPoint(indices[0])[0], tree.getPoint(indices[0])[1]);
+/*         if (indices[0] == 0) {
             std::cerr << "Warning: The robot is out of the map!" << std::endl;
             return false;
-        }
+        } */
 
         if (dists[0] > MAX_EDGE_LEN) {
             return true;
