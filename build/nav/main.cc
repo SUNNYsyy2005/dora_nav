@@ -14,20 +14,17 @@ double getAngle(int x1, int y1, int x2, int y2) {
 int main(int argc, char **argv) {
 
     usleep(100000); // 否则是-999999
-    if (argc != 5 && argc != 1 && argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <start_x> <start_y> <goal_x> <goal_y>" << std::endl;
-        return 1;
-    }
     int start_x = 400, start_y = 400;
     double start_angle = M_PI / 2;
     int goal_x = 200, goal_y = 250;
-    if(argc>1){
+    if(argc==5){
         start_x = std::stoi(argv[1]);
         start_y = std::stoi(argv[2]);
-        if(argc>3){
-            goal_x = std::stoi(argv[3]);
-            goal_y = std::stoi(argv[4]);
-        }
+        goal_x = std::stoi(argv[3]);
+        goal_y = std::stoi(argv[4]);
+    }else if(argc==3){
+        goal_x = std::stoi(argv[1]);
+        goal_y = std::stoi(argv[2]);
     }
     printf("start_x: %d, start_y: %d, goal_x: %d, goal_y: %d\n", start_x, start_y, goal_x, goal_y);
     
