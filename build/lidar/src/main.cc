@@ -55,14 +55,14 @@ int run(void *dora_context)
                 data.push_back(*(data_ptr + i));
             }
 
-            std::cout
-                << "Received input "
-                << " (counter: " << (unsigned int)counter << ") data: [";
-            for (unsigned char &v : data)
-            {
-                std::cout << (unsigned int)v << ", ";
-            }
-            std::cout << "]" << std::endl;
+            //std::cout
+            //    << "Received input "
+            //    << " (counter: " << (unsigned int)counter << ") data: [";
+            //for (unsigned char &v : data)
+            //{
+            //    std::cout << (unsigned int)v << ", ";
+            //}
+            //std::cout << "]" << std::endl;
 
             
         }

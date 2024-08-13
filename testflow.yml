@@ -1,9 +1,22 @@
 nodes:
+  - id: lidar
+    custom:
+      source: build/lidar/build/test
+      inputs:
+        tick: dora/timer/millis/10
+      outputs:
+        - scan
+  - id: imu
+    custom:
+      source: build/imu/build/test
+      outputs:
+        - data
   - id: amcl
     custom:
       source: build/amcl/build/test
       inputs:
         tick: dora/timer/millis/100
+        scan2: lidar/scan
+        imu: imu/data
       outputs:
         - pose
-

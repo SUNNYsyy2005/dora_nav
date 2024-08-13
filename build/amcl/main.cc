@@ -103,7 +103,7 @@ void process_samples(pf_t *pf) {
     }
     // 如果找到了权重最大的聚类，输出其平均值
     if (max_cluster != NULL) {
-        printf("Max weight cluster weight: %f\n", max_weight);
+        //printf("Max weight cluster weight: %f\n", max_weight);
         msg2.x = MAP_GXWX(map,max_cluster->mean.v[0]);
         msg2.y = MAP_GYWY(map,max_cluster->mean.v[1]);
         msg2.theta = max_cluster->mean.v[2];
@@ -196,8 +196,8 @@ int run(void *dora_context)
         return -1;
     }
     // 初始均值和协方差矩阵
-    pf_vector_t mean = {0, 0, 0}; // 初始均值 [x, y, theta]
-    pf_matrix_t cov = {1, 0, 0, 0, 1, 0 , 0, 0, M_PI*M_PI}; // 初始协方差
+    pf_vector_t mean = {0, 1, M_PI/2}; // 初始均值 [x, y, theta]
+    pf_matrix_t cov = {1, 0, 0, 0, 1, 0 , 0, 0, 0}; // 初始协方差
     // 使用高斯模型初始化粒子滤波器
     pf_init(pf, mean, cov);
 
@@ -211,7 +211,7 @@ int run(void *dora_context)
         }
 
         enum DoraEventType ty = read_dora_event_type(event);
-        printf("[c node] received event: %d\n", ty);
+        //printf("[c node] received event: %d\n", ty);
 
         if (ty == DoraEventType_Input)
         {
@@ -221,13 +221,13 @@ int run(void *dora_context)
             size_t id_len;
             read_dora_input_id(event, &id_ptr, &id_len);
             std::string id(id_ptr, id_len);
-            printf("id: %s\n", id.c_str());
+            //printf("id: %s\n", id.c_str());
             if(id == "tick")
             {
                 std::string out_id = "pose";
                 nlohmann::json json_obj = msg2.to_json();
                 std::string json_str = json_obj.dump();
-                printf("%s\n", json_str.c_str());
+                //printf("%s\n", json_str.c_str());
                 const char* char_ptr = json_str.c_str();
                 char* non_const_char_ptr = new char[json_str.size() + 1];
                 std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
@@ -237,20 +237,20 @@ int run(void *dora_context)
                     std::cerr << "failed to send output" << std::endl;
                     return 1;
                 }
-                printf("tick\n");
+                //printf("tick\n");
             }else if(id == "scan2"){
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
                 std::string json_str(data_ptr, data_len);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
                 replace_null_with_nan(json_str);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
                 printf("seq: %d\n", scan.header.seq);
                 printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
-                printf("frame_id: %s\n", scan.header.frame_id.c_str());
+                /* printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 printf("angle_min: %f\n", scan.angle_min);
                 printf("angle_max: %f\n", scan.angle_max);
                 printf("angle_increment: %f\n", scan.angle_increment);
@@ -267,14 +267,14 @@ int run(void *dora_context)
                 for (float intensity : scan.intensities) {
                     printf("%f ", intensity);
                 }
-                printf("\n  ");
+                printf("\n  "); */
                 laserCallback(&scan);
             }else if(id == "imu"){
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
                 std::string json_str(data_ptr, data_len);
-                printf("json_str: %s\n", json_str.c_str());
+                //printf("json_str: %s\n", json_str.c_str());
                 //replace_null_with_nan(json_str);
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);

@@ -121,8 +121,8 @@ int run(void *dora_context)
             if(strncmp(id.c_str(), "scan", 4) == 0){
                 odom.header.stamp.sec = seconds.count();
                 odom.header.stamp.nsec = nanoseconds.count();
-                odom.pose.pose.position.x = 0*counter;
-                odom.pose.pose.position.y = 0;
+                odom.pose.pose.position.x = 0;
+                odom.pose.pose.position.y = -2.5;
                 odom.pose.pose.position.z = 0;
                 odom.pose.pose.orientation.x = 0;
                 odom.pose.pose.orientation.y = 0;

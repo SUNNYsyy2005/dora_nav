@@ -22,7 +22,7 @@ extern "C"
 #include "../../include/ros.h"
 
 using namespace teb_local_planner;
-const int step = 3;
+const int step = 30;
 const int width = 500;
 const int height = 500;
 const int map_width = 800;
@@ -166,7 +166,7 @@ int run(void *dora_context)
                             show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(50, 50, 50);
                             }
                         }
-                        if(scan.ranges[i] < 1.5){
+                        if(scan.ranges[i] < 10){
                             obst_vector.emplace_back(boost::make_shared<PointObstacle>(x, y));
                         }
                     }

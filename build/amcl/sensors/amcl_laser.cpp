@@ -350,7 +350,7 @@ double AMCLLaser::LikelihoodFieldModel(AMCLLaserData *data, pf_sample_set_t* set
     }
     total_weight += sample->weight;
   }
-  printf("%d %g\n",tot, total_weight);
+  //printf("%d %g\n",tot, total_weight);
   return(total_weight);
 }
 
