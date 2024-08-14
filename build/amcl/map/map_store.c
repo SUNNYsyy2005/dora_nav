@@ -141,7 +141,7 @@ int map_load_occ(map_t *map, const char *filename, double scale, int negate)
   }
   printf("tt: %d\n", tt);
   fclose(file);
-  FILE *pgmFile = fopen("/home/xiling/dora_nav/build/amcl/output.pgm", "w");
+  FILE *pgmFile = fopen("/home/sunny/dora_nav/build/amcl/output.pgm", "w");
   if (pgmFile == NULL) {
       fprintf(stderr, "Cannot open file to write\n");
       exit(1);

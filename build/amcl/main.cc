@@ -176,7 +176,7 @@ int run(void *dora_context)
     unsigned char counter = 0;
     msg2.x=400;msg2.y=400;msg2.theta=M_PI/2;
     map = map_alloc();
-    map_load_occ(map, "/home/xiling/dora_nav/build/nav/laser_data.pgm", 0.04,1);
+    map_load_occ(map, "/home/sunny/dora_nav/build/nav/laser_data.pgm", 0.04,1);
 
     // printf("map size: %d %d\n", map->size_x, map->size_y);
     // 设置AMCL的激光雷达传感器模型
@@ -250,7 +250,7 @@ int run(void *dora_context)
                 std::string json_str(data_ptr, data_len);
                 //printf("json_str: %s\n", json_str.c_str());
                 replace_null_with_nan(json_str);
-                //printf("json_str: %s\n", json_str.c_str());
+                //fprintf(file,"json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
                 // printf("seq: %d\n", scan.header.seq);
@@ -330,7 +330,7 @@ int run(void *dora_context)
 int main()
 {
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
-    file = fopen("/home/xiling/dora_nav/amcl.txt","a");
+    file = fopen("/home/sunny/dora_nav/amcl.txt","a");
     auto dora_context = init_dora_context_from_env();
     auto ret = run(dora_context);
     free_dora_context(dora_context);

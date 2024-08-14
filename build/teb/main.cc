@@ -79,7 +79,7 @@ void replace_null_with_nan(std::string& json_str) {
 int run(void *dora_context)
 {
     std::string line;
-    std::ifstream file("/home/xiling/dora_nav/build/teb/path.csv");
+    std::ifstream file("/home/sunny/dora_nav/build/teb/path.csv");
     std::vector<std::pair<float, float>> pathh;
     if (file.is_open()) {
         
@@ -152,7 +152,7 @@ int run(void *dora_context)
                     cv::Point center(GXtMX(robot.x), GYtMY(robot.y)); // 计算圆心
                     cv::circle(show_map, center, r, cv::Scalar(255, 255, 255), -1); // 绘制填充圆
                     auto s = std::chrono::high_resolution_clock::now();
-                    // printf("start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()), start.theta());
+                     printf("start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()), start.theta());
                     planner->plan(start, end);
                     // do somthine
                     auto e = std::chrono::high_resolution_clock::now();
@@ -203,7 +203,7 @@ int run(void *dora_context)
                     std::cerr << "捕获到未知类型的异常" << std::endl;
                     break;
                 }
-                //cv::waitKey(10);
+                cv::waitKey(10);
                 while(pow(pathh[reach_num].first-robot.x,2)+pow(pathh[reach_num].second-robot.y,2)<10){
                     reach_num++;
                     end.x() = GXtRX(GYtGX(pathh[reach_num].second));
@@ -262,7 +262,7 @@ int run(void *dora_context)
                 obst_vector.clear();
                 for(int i=0;i<scan.ranges.size();i++){
                         double angle = scan.angle_min + i*scan.angle_increment;
-                        double gx = scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
+                        double gx = -scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
                         double gy = -scan.ranges[i] * sin(angle + robot.theta)/scale + robot.y;
                         double x = GXtRX(GYtGX(gy));
                         double y = GYtRY(GXtGY(gx));
@@ -282,7 +282,7 @@ int run(void *dora_context)
                     }
                 }
                 //printf("seq: %d\n", scan.header.seq);
-                // printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
+                 printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
                 //printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 //printf("angle_min: %f\n", scan.angle_min);
                 //printf("angle_max: %f\n", scan.angle_max);

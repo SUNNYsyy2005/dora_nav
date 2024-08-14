@@ -69,7 +69,7 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     }
     printf("time_diff: %f, linear_displacement_mm: %f, angular_displacement_degrees: %f\n", time_diff, linear_displacement_mm, angular_displacement_degrees);
     // 格式化数据
-    std::ofstream file("/home/xiling/dora_nav/build/slam/laser_data.dat", std::ios::app);
+    std::ofstream file("/home/sunny/dora_nav/build/slam/laser_data.dat", std::ios::app);
     file<< time_diff << " " << linear_displacement_mm << " " << angular_displacement_degrees << " ";
     for (const auto& distance : distances_mm) {
         file << distance << " ";
@@ -122,7 +122,7 @@ int run(void *dora_context)
                 odom.header.stamp.sec = seconds.count();
                 odom.header.stamp.nsec = nanoseconds.count();
                 odom.pose.pose.position.x = 0;
-                odom.pose.pose.position.y = -2.5;
+                odom.pose.pose.position.y = 0;
                 odom.pose.pose.position.z = 0;
                 odom.pose.pose.orientation.x = 0;
                 odom.pose.pose.orientation.y = 0;
