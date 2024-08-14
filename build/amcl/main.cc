@@ -330,7 +330,7 @@ int run(void *dora_context)
 int main()
 {
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
-    file = fopen("/home/sunny/dora_nav/amcl.txt","a");
+    file = fopen("/home/sunny/dora_nav/amcl.txt","w");
     auto dora_context = init_dora_context_from_env();
     auto ret = run(dora_context);
     free_dora_context(dora_context);

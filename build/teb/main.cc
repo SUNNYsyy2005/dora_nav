@@ -20,7 +20,8 @@ extern "C"
 #include <string>
 
 #include "../../include/ros.h"
-
+FILE * filename;
+std::chrono::time_point<std::chrono::steady_clock> last_execution_time = std::chrono::steady_clock::now();
 using namespace teb_local_planner;
 const int step = 10;
 const int width = 500;
@@ -67,6 +68,7 @@ int RYtMX(double y){
 }
 geometry_msgs::Pose2D robot;
 sensor_msgs::LaserScan scan;
+bool iftick = false;
 void replace_null_with_nan(std::string& json_str) {
     std::string null_str = "null";
     std::string nan_str = "-1";
@@ -141,7 +143,7 @@ int run(void *dora_context)
             std::string id(id_ptr, id_len);
             
             if(id == "tick"){
-                memset(show_map.data, 0, 800 * 800 * 3);
+                iftick = true;
                 try
                 {
                     start.x() = GXtRX(GYtGX(robot.y));
@@ -172,9 +174,9 @@ int run(void *dora_context)
                     }
                     float vx, vy, w;
                     planner->getVelocityCommand(vx, vy, w,step);
-                    //printf("next x: %f, y: %f, theta: %f",  GYtGX(path.at(step)[1]/scale), GXtGY(path.at(step)[0]/scale), path.at(step)[2]);
-                    //printf("end x: %f, y: %f, theta: %f",  GYtGX(end.y()/scale), GXtGY(end.x()/scale), end.theta());
-                    //printf("vx: %f,vy: %f, w: %f\n", vx,vy, w);
+                    //fprintf(filename,"next x: %f, y: %f, theta: %f",  GYtGX(path.at(step)[1]/scale), GXtGY(path.at(step)[0]/scale), path.at(step)[2]);
+                    //fprintf(filename,"end x: %f, y: %f, theta: %f",  GYtGX(end.y()/scale), GXtGY(end.x()/scale), end.theta());
+                    //fprintf(filename,"vx: %f,vy: %f, w: %f\n", vx,vy, w);
                     std::string out_id = "twist";
                     geometry_msgs::Twist twist;
                     twist.linear.x = vx;
@@ -203,7 +205,7 @@ int run(void *dora_context)
                     std::cerr << "捕获到未知类型的异常" << std::endl;
                     break;
                 }
-                cv::waitKey(10);
+                cv::waitKey(1);
                 while(pow(pathh[reach_num].first-robot.x,2)+pow(pathh[reach_num].second-robot.y,2)<10){
                     reach_num++;
                     end.x() = GXtRX(GYtGX(pathh[reach_num].second));
@@ -242,7 +244,18 @@ int run(void *dora_context)
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 robot = geometry_msgs::Pose2D::from_json(json_obj);
-            }else if(id == "scan"){
+            }else if(id == "scan" && iftick){
+                //auto now = std::chrono::steady_clock::now();
+                // 计算时间间隔
+                //std::chrono::duration<double> elapsed_seconds = now - last_execution_time;
+                //if (elapsed_seconds.count() >= 0.1) {
+                //    last_execution_time = now;
+                    //fprintf(filename,"too short\n");
+                //    continue;
+                //}else{
+                    //fprintf(filename,"time:%g\n",elapsed_seconds.count());
+                //}
+
                 char *data_ptr;
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
@@ -258,17 +271,19 @@ int run(void *dora_context)
                 {
                     data.push_back(*(data_ptr + i));
                 } */
+                memset(show_map.data, 0, 800 * 800 * 3);
                 scan = sensor_msgs::LaserScan::from_json(json_obj);
                 obst_vector.clear();
                 for(int i=0;i<scan.ranges.size();i++){
+                        if(scan.ranges[i]==NAN){continue;}
                         double angle = scan.angle_min + i*scan.angle_increment;
-                        double gx = -scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
+                        double gx = scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
                         double gy = -scan.ranges[i] * sin(angle + robot.theta)/scale + robot.y;
                         double x = GXtRX(GYtGX(gy));
                         double y = GYtRY(GXtGY(gx));
                         int x_ = GXtMX(gx);
                         int y_ = GYtMY(gy);
-                        //printf("x: %d, y: %d\n", x_, y_);
+                        //fprintf(filename,"x: %d, y: %d\n", x_, y_);
                         if(x_>=0 && x_<=800 && y_>=0 && y_<=800){
                             if(scan.ranges[i] < 20){
                                 show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(125, 125, 125);
@@ -283,6 +298,8 @@ int run(void *dora_context)
                 }
                 //printf("seq: %d\n", scan.header.seq);
                  printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
+                 cv::imshow("path", show_map);
+                 cv::waitKey(1);
                 //printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 //printf("angle_min: %f\n", scan.angle_min);
                 //printf("angle_max: %f\n", scan.angle_max);
@@ -324,6 +341,7 @@ int main()
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
 
     auto dora_context = init_dora_context_from_env();
+    filename = fopen("/home/sunny/dora_nav/teb.txt","w");
     auto ret = run(dora_context);
     free_dora_context(dora_context);
 
