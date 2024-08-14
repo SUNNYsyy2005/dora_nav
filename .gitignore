@@ -22,4 +22,3 @@ build/teb/src/optimal_planner.cpp
 
 **/out/
 **/out.bak/
-**/**/CMakeLists.txt
