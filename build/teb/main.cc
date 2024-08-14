@@ -22,7 +22,7 @@ extern "C"
 #include "../../include/ros.h"
 
 using namespace teb_local_planner;
-const int step = 30;
+const int step = 10;
 const int width = 500;
 const int height = 500;
 const int map_width = 800;
@@ -107,15 +107,18 @@ int run(void *dora_context)
     }
     // 参数配置
     TebConfig config;
-    PoseSE2 start(100, 0, PI/2);
-    PoseSE2 end(GXtRX(GYtGX(pathh[0].second)),GXtRX(GYtGX((pathh[0].first))), 0);
+    robot.x = 400;
+    robot.y = 450;
+    robot.theta = PI/2;
+    PoseSE2 start(400, 450, PI/2);
+    PoseSE2 end(GXtRX(GYtGX(pathh[0].second)),GXtRX(GYtGX((pathh[0].first))), PI/2);
     printf("end x: %f, y: %f\n", GYtGX(end.y()/scale), GXtGY(end.x()/scale));
     std::vector<ObstaclePtr> obst_vector;
     ViaPointContainer via_points;
     RobotFootprintModelPtr robot_model = boost::make_shared<CircularRobotFootprint>(0.4);
     auto visual = TebVisualizationPtr(new TebVisualization(config));
     auto planner = new TebOptimalPlanner(config, &obst_vector, robot_model, visual, &via_points);
-    cv::Mat show_map = cv::Mat::zeros(cv::Size(500, 500), CV_8UC3);
+    cv::Mat show_map = cv::Mat::zeros(cv::Size(800, 800), CV_8UC3);
     int reach_num = 0;
 
     while(true)
@@ -138,8 +141,7 @@ int run(void *dora_context)
             std::string id(id_ptr, id_len);
             
             if(id == "tick"){
-                
-                memset(show_map.data, 0, 500 * 500 * 3);
+                memset(show_map.data, 0, 800 * 800 * 3);
                 try
                 {
                     start.x() = GXtRX(GYtGX(robot.y));
@@ -158,7 +160,7 @@ int run(void *dora_context)
                         int x_ = GXtMX(gx);
                         int y_ = GYtMY(gy);
                         //printf("x: %d, y: %d\n", x_, y_);
-                        if(x_>=0 && x_<500 && y_>=0 && y_<500){
+                        if(x_>=0 && x_<800 && y_>=0 && y_<800){
                             if(scan.ranges[i] < 2.5){
                                 show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(125, 125, 125);
                             }
@@ -166,7 +168,7 @@ int run(void *dora_context)
                             show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(50, 50, 50);
                             }
                         }
-                        if(scan.ranges[i] < 10){
+                        if(scan.ranges[i] < 2.5){
                             obst_vector.emplace_back(boost::make_shared<PointObstacle>(x, y));
                         }
                     }
@@ -191,16 +193,16 @@ int run(void *dora_context)
                     }
                     float vx, vy, w;
                     planner->getVelocityCommand(vx, vy, w,step);
-                    printf("next x: %f, y: %f, theta: %f",  GYtGX(path.at(step)[1]/scale), GXtGY(path.at(step)[0]/scale), path.at(step)[2]);
-                    printf("end x: %f, y: %f, theta: %f",  GYtGX(end.y()/scale), GXtGY(end.x()/scale), end.theta());
-                    printf("vx: %f,vy: %f, w: %f\n", vx,vy, w);
+                    //printf("next x: %f, y: %f, theta: %f",  GYtGX(path.at(step)[1]/scale), GXtGY(path.at(step)[0]/scale), path.at(step)[2]);
+                    //printf("end x: %f, y: %f, theta: %f",  GYtGX(end.y()/scale), GXtGY(end.x()/scale), end.theta());
+                    //printf("vx: %f,vy: %f, w: %f\n", vx,vy, w);
                     std::string out_id = "twist";
                     geometry_msgs::Twist twist;
                     twist.linear.x = vx;
                     twist.angular.z = w;
                     nlohmann::json json_obj = twist.to_json();
                     std::string json_str = json_obj.dump();
-                    printf("%s\n", json_str.c_str());
+                    //printf("%s\n", json_str.c_str());
                     const char* char_ptr = json_str.c_str();
                     char* non_const_char_ptr = new char[json_str.size() + 1];
                     std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
@@ -223,7 +225,7 @@ int run(void *dora_context)
                     break;
                 }
                 cv::waitKey(10);
-                while(pow(pathh[reach_num].first-robot.x,2)+pow(pathh[reach_num].second-robot.y,2)<100){
+                while(pow(pathh[reach_num].first-robot.x,2)+pow(pathh[reach_num].second-robot.y,2)<1.5){
                     reach_num++;
                     end.x() = GXtRX(GYtGX(pathh[reach_num].second));
                     end.y() = GYtRY(GXtGY(pathh[reach_num].first));
@@ -237,7 +239,7 @@ int run(void *dora_context)
                     //std::vector<unsigned char> out_vec = twist.to_vector();
                     nlohmann::json json_obj = twist.to_json();
                     std::string json_str = json_obj.dump();
-                    printf("%s\n", json_str.c_str());
+                    //printf("%s\n", json_str.c_str());
                     const char* char_ptr = json_str.c_str();
                     char* non_const_char_ptr = new char[json_str.size() + 1];
                     std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
@@ -257,7 +259,7 @@ int run(void *dora_context)
                 read_dora_input_data(event, &data_ptr, &data_len);
                 std::string json_str(data_ptr, data_len);
                 printf("json_str: %s\n", json_str.c_str());
-                replace_null_with_nan(json_str);
+                //replace_null_with_nan(json_str);
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 robot = geometry_msgs::Pose2D::from_json(json_obj);

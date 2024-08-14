@@ -2,8 +2,6 @@ nodes:
   - id: lidar
     custom:
       source: build/lidar/build/test
-      inputs:
-        tick: dora/timer/millis/10
       outputs:
         - scan
   - id: imu

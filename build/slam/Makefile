@@ -88,7 +88,7 @@ install: $(BUILDDIR)/libbreezyslam.$(LIBEXT)
 		g++ -O3 -c -I ./slambuild log2pgm.cc -o build/log2pgm.o
 		g++ -O3 -o build/log2pgm build/log2pgm.o -L/$(BUILDDIR) -lbreezyslam
 run:./build/log2pgm
-	./build/log2pgm laser_data 0 0 eog laser_data.pgm
+	./build/log2pgm laser_data 0 9999 eog laser_data.pgm
 # cp $(BUILDDIR)/libbreezyslam.$(LIBEXT) $(LIBDIR)
     
 doc:

@@ -40,7 +40,7 @@ Change log:
 static const int MAP_SIZE_PIXELS        = 800;
 static const double MAP_SIZE_METERS     =  32;
 
-static const int SCAN_SIZE 		        = 2001;
+static const int SCAN_SIZE 		        = 2000;
 
 // Arbitrary maximum length of line in input logfile
 #define MAXLINE 1000000
@@ -431,9 +431,9 @@ int main( int argc, const char** argv )
     
     fprintf(output, "P2\n%d %d 255\n", MAP_SIZE_PIXELS, MAP_SIZE_PIXELS);
     
-    for (int x=0; x<MAP_SIZE_PIXELS; x++)
+    for (int y=0; y<MAP_SIZE_PIXELS; y++)
     {
-        for (int y=0; y<MAP_SIZE_PIXELS; y++)
+        for (int x=MAP_SIZE_PIXELS-1; x>=0; x--)
         {
             fprintf(output, "%d ", mapbytes[coords2index(x, y)]);
         }

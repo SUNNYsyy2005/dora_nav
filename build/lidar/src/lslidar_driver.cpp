@@ -83,7 +83,7 @@ namespace lslidar_driver {
         pnh.param("horizontal_angle_resolution", horizontal_angle_resolution, 0.18);
         pnh.param<bool>("use_time_service", use_time_service, false);
         pnh.param<bool>("publish_scan", publish_scan, true);
-        pnh.param<bool>("coordinate_opt", coordinate_opt, true);
+        pnh.param<bool>("coordinate_opt", coordinate_opt, false);
         pnh.param<std::string>("pointcloud_topic", pointcloud_topic, "lslidar_point_cloud");
         inet_aton(lidar_ip_string.c_str(), &lidar_ip);
         printf("Only accepting packets from IP address: %s\n", lidar_ip_string.c_str());
@@ -952,7 +952,7 @@ namespace lslidar_driver {
         // if there is one, new_sweep_start will be the index of the start firing,
         // otherwise, new_sweep_start will be FIRINGS_PER_PACKET.
         size_t new_sweep_start = 0;
-        if (packet_num > 10) {
+        if (packet_num > 3) {
             do {
                 if (abs(firings.azimuth[new_sweep_start] - last_azimuth) > 35900) {
                     packet_num = 0;

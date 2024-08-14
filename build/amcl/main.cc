@@ -68,7 +68,7 @@ void imuCallback(const sensor_msgs::Imu * msg) {
         msg->orientation.w);
     double roll, pitch, yaw;
     tf::getRPY(q,roll, pitch, yaw); // 将四元数转换为欧拉角
-    global_theta = yaw;// 小车的朝向
+    global_theta = yaw+M_PI/2;// 小车的朝向
 }
 double toPI(double angle){
     while(angle > M_PI){
@@ -116,10 +116,10 @@ void process_samples(pf_t *pf) {
 void laserCallback(const sensor_msgs::LaserScan* msg) {
     auto now = std::chrono::steady_clock::now();
     // 检查自上次回调以来是否已经过了5秒
-    if (std::chrono::duration_cast<std::chrono::microseconds>(now - last_time).count() < 200000) {
+    //if (std::chrono::duration_cast<std::chrono::microseconds>(now - last_time).count() < 200000) {
         // 如果没有过5秒，就直接返回，不处理这次消息
-        return;
-    }
+    //    return;
+    //}
     updateParticlePoses();
     // 更新上次处理消息的时间
     last_time = now;
@@ -152,10 +152,10 @@ void ackermannCmdCallback(const geometry_msgs::Twist* msg) {
     last_velocity = msg->linear.x;
     global_x += velocity * dt * cos(global_theta);
     global_y -= velocity * dt * sin(global_theta);
-    if (std::isnan(global_x)){
-        std::cout<<"Velocity: "<<velocity<<" Steering angle Velocity: "<<steering_angle_velocity<<std::endl;
-        exit(0);
-    }
+    //if (std::isnan(global_x)){
+    //    std::cout<<"Velocity: "<<velocity<<" Steering angle Velocity: "<<steering_angle_velocity<<std::endl;
+    //    exit(0);
+    //}
 }
 pf_vector_t random_pose_init(void *data) {
     pf_vector_t pose;
@@ -169,13 +169,13 @@ pf_vector_t random_pose_init(void *data) {
 int run(void *dora_context)
 {
     unsigned char counter = 0;
-    msg2.x=400;msg2.y=400;msg2.theta=0;
+    msg2.x=400;msg2.y=400;msg2.theta=M_PI/2;
     map = map_alloc();
     map_load_occ(map, "/home/sunny/dora_nav/build/nav/laser_data.pgm", 0.04,1);
 
     printf("map size: %d %d\n", map->size_x, map->size_y);
     // 设置AMCL的激光雷达传感器模型
-    amcl::AMCLLaser aa((size_t)1080, map);
+    amcl::AMCLLaser aa((size_t)2000, map);
     laser_sensor = aa;
     pf_vector_t v;
     v.v[0]=0;v.v[1]=0;v.v[2]=0;
@@ -227,7 +227,7 @@ int run(void *dora_context)
                 std::string out_id = "pose";
                 nlohmann::json json_obj = msg2.to_json();
                 std::string json_str = json_obj.dump();
-                //printf("%s\n", json_str.c_str());
+                printf("%s\n", json_str.c_str());
                 const char* char_ptr = json_str.c_str();
                 char* non_const_char_ptr = new char[json_str.size() + 1];
                 std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
@@ -304,7 +304,7 @@ int run(void *dora_context)
                 //    data.push_back(*(data_ptr + i));
                 //}
                 //geometry_msgs::Twist twist = geometry_msgs::Twist::from_vector(data);
-                //ackermannCmdCallback(&twist);
+                ackermannCmdCallback(&twist);
             }
         }
         else if (ty == DoraEventType_Stop)

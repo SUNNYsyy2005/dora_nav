@@ -24,12 +24,12 @@ lslidar_driver::LslidarDriver dvr(node, private_nh);
 
 int run(void *dora_context)
 {
-    unsigned char counter = 0;
+    //unsigned char counter = 0;
 
     while(true)
     {
         dvr.poll(dora_context);
-        void *event = dora_next_event(dora_context);
+        /* void *event = dora_next_event(dora_context);
         if (event == NULL)
         {
             printf("[c node] ERROR: unexpected end of event\n");
@@ -39,7 +39,7 @@ int run(void *dora_context)
         enum DoraEventType ty = read_dora_event_type(event);
 
         if (ty == DoraEventType_Input)
-        {
+        { 
             counter += 1;
 
             char *id_ptr;
@@ -53,8 +53,7 @@ int run(void *dora_context)
             for (size_t i = 0; i < data_len; i++)
             {
                 data.push_back(*(data_ptr + i));
-            }
-
+            } */
             //std::cout
             //    << "Received input "
             //    << " (counter: " << (unsigned int)counter << ") data: [";
@@ -65,7 +64,7 @@ int run(void *dora_context)
             //std::cout << "]" << std::endl;
 
             
-        }
+/*         }
         else if (ty == DoraEventType_Stop)
         {
             printf("[c node] received stop event\n");
@@ -75,7 +74,7 @@ int run(void *dora_context)
             printf("[c node] received unexpected event: %d\n", ty);
         }
 
-        free_dora_event(event);
+        free_dora_event(event); */
     }
     return 0;
 }
