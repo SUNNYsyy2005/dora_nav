@@ -147,31 +147,10 @@ int run(void *dora_context)
                     start.x() = GXtRX(GYtGX(robot.y));
                     start.y() = GYtRY(GXtGY(robot.x));
                     start.theta() = robot.theta-PI/2;
-                    obst_vector.clear();
+                    //obst_vector.clear();
                     int r = 10; // 设置半径大小
                     cv::Point center(GXtMX(robot.x), GYtMY(robot.y)); // 计算圆心
                     cv::circle(show_map, center, r, cv::Scalar(255, 255, 255), -1); // 绘制填充圆
-                    for(int i=0;i<scan.range_min;i++){
-                        double angle = scan.angle_min + i*scan.angle_increment;
-                        double gx = scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
-                        double gy = -scan.ranges[i] * sin(angle + robot.theta)/scale + robot.y;
-                        double x = GXtRX(GYtGX(gy));
-                        double y = GYtRY(GXtGY(gx));
-                        int x_ = GXtMX(gx);
-                        int y_ = GYtMY(gy);
-                        //printf("x: %d, y: %d\n", x_, y_);
-                        if(x_>=0 && x_<800 && y_>=0 && y_<800){
-                            if(scan.ranges[i] < 2.5){
-                                show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(125, 125, 125);
-                            }
-                            else{
-                            show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(50, 50, 50);
-                            }
-                        }
-                        if(scan.ranges[i] < 2.5){
-                            obst_vector.emplace_back(boost::make_shared<PointObstacle>(x, y));
-                        }
-                    }
                     auto s = std::chrono::high_resolution_clock::now();
                     // printf("start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()), start.theta());
                     planner->plan(start, end);
@@ -224,8 +203,8 @@ int run(void *dora_context)
                     std::cerr << "捕获到未知类型的异常" << std::endl;
                     break;
                 }
-                cv::waitKey(10);
-                while(pow(pathh[reach_num].first-robot.x,2)+pow(pathh[reach_num].second-robot.y,2)<1.5){
+                //cv::waitKey(10);
+                while(pow(pathh[reach_num].first-robot.x,2)+pow(pathh[reach_num].second-robot.y,2)<10){
                     reach_num++;
                     end.x() = GXtRX(GYtGX(pathh[reach_num].second));
                     end.y() = GYtRY(GXtGY(pathh[reach_num].first));
@@ -280,6 +259,28 @@ int run(void *dora_context)
                     data.push_back(*(data_ptr + i));
                 } */
                 scan = sensor_msgs::LaserScan::from_json(json_obj);
+                obst_vector.clear();
+                for(int i=0;i<scan.range.size();i++){
+                        double angle = scan.angle_min + i*scan.angle_increment;
+                        double gx = scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
+                        double gy = -scan.ranges[i] * sin(angle + robot.theta)/scale + robot.y;
+                        double x = GXtRX(GYtGX(gy));
+                        double y = GYtRY(GXtGY(gx));
+                        int x_ = GXtMX(gx);
+                        int y_ = GYtMY(gy);
+                        //printf("x: %d, y: %d\n", x_, y_);
+                        if(x_>=0 && x_<=800 && y_>=0 && y_<=800){
+                            if(scan.ranges[i] < 20){
+                                show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(125, 125, 125);
+                            }
+                            else{
+                            show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(50, 50, 50);
+                            }
+                        }
+                        if(scan.ranges[i] < 20){
+                        obst_vector.emplace_back(boost::make_shared<PointObstacle>(x, y));
+                    }
+                }
                 //printf("seq: %d\n", scan.header.seq);
                 // printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
                 //printf("frame_id: %s\n", scan.header.frame_id.c_str());
