@@ -16,6 +16,8 @@ build/lidar/build/**
 build/imu/build/**
 build/imu/out/**
 
+build/teb/src/optimal_planner.cpp
+
 **/target
 
 **/out/
