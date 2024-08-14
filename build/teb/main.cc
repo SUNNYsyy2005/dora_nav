@@ -260,7 +260,7 @@ int run(void *dora_context)
                 } */
                 scan = sensor_msgs::LaserScan::from_json(json_obj);
                 obst_vector.clear();
-                for(int i=0;i<scan.range.size();i++){
+                for(int i=0;i<scan.ranges.size();i++){
                         double angle = scan.angle_min + i*scan.angle_increment;
                         double gx = scan.ranges[i] * cos(angle + robot.theta)/scale + robot.x;
                         double gy = -scan.ranges[i] * sin(angle + robot.theta)/scale + robot.y;
