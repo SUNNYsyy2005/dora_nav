@@ -19,7 +19,7 @@ use tokio::sync::mpsc;
 use std::time::Duration;
 
 // serial port
-static SERIAL_PORT: &str = "/dev/ttyUSB0";
+static SERIAL_PORT: &str = "/dev/ttyUSB1";
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
