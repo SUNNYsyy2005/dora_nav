@@ -22,5 +22,14 @@ for dir in "${dirs[@]}"; do
     fi
 done
 
+if [ -f "control/Cargo.toml" ]; then
+    echo "Building control project with Cargo..."
+    cd control
+    cargo build
+    cd -
+else
+    echo "Warning: Cargo.toml not found in control directory, skipping Cargo build."
+fi
+
 echo "All operations completed."
 
