@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/test.dir/main.cc.o -o test   -L/usr/local/lib  -Wl,-rpath,/usr/local/lib /home/sunny/dora/target/release/libdora_node_api_c.a -lboost_thread /usr/local/lib/libserial.so -lrt -ldl -lpthread 

@@ -214,10 +214,10 @@ namespace teb_local_planner
             robot.max_vel_x = 0.1;
             robot.max_vel_x_backwards = 0.05;
             robot.max_vel_y = 0.0;
-            robot.max_vel_theta = 0.3;
+            robot.max_vel_theta = 0.1;
             robot.acc_lim_x = 0.05;
             robot.acc_lim_y = 0.05;
-            robot.acc_lim_theta = 0.3;
+            robot.acc_lim_theta = 0.1;
             robot.min_turning_radius = 0;
             robot.wheelbase = 1.0;
             robot.cmd_angle_instead_rotvel = false;

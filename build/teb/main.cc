@@ -79,7 +79,7 @@ void replace_null_with_nan(std::string& json_str) {
 int run(void *dora_context)
 {
     std::string line;
-    std::ifstream file("/home/sunny/dora_nav/build/teb/path.csv");
+    std::ifstream file("/home/xiling/dora_nav/build/teb/path.csv");
     std::vector<std::pair<float, float>> pathh;
     if (file.is_open()) {
         
@@ -112,7 +112,7 @@ int run(void *dora_context)
     robot.theta = PI/2;
     PoseSE2 start(400, 450, PI/2);
     PoseSE2 end(GXtRX(GYtGX(pathh[0].second)),GXtRX(GYtGX((pathh[0].first))), PI/2);
-    printf("end x: %f, y: %f\n", GYtGX(end.y()/scale), GXtGY(end.x()/scale));
+    // printf("end x: %f, y: %f\n", GYtGX(end.y()/scale), GXtGY(end.x()/scale));
     std::vector<ObstaclePtr> obst_vector;
     ViaPointContainer via_points;
     RobotFootprintModelPtr robot_model = boost::make_shared<CircularRobotFootprint>(0.4);
@@ -173,16 +173,16 @@ int run(void *dora_context)
                         }
                     }
                     auto s = std::chrono::high_resolution_clock::now();
-                    printf("start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()), start.theta());
+                    // printf("start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()), start.theta());
                     planner->plan(start, end);
                     // do somthine
                     auto e = std::chrono::high_resolution_clock::now();
                     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(e - s);
-                    std::cout << "cost "<< ms.count()  <<" ms"<< std::endl;
+                    // std::cout << "cost "<< ms.count()  <<" ms"<< std::endl;
                     // vi
                     std::vector<Eigen::Vector3f> path;
                     planner->getFullTrajectory(path);
-                    std::cout << "path size: " << path.size() << std::endl;
+                    // std::cout << "path size: " << path.size() << std::endl;
                     for (int i = 0; i < path.size() - 1; i++)
                     {
                         int y = RXtMY(path.at(i)[0]);
@@ -258,7 +258,7 @@ int run(void *dora_context)
                 size_t data_len;
                 read_dora_input_data(event, &data_ptr, &data_len);
                 std::string json_str(data_ptr, data_len);
-                printf("json_str: %s\n", json_str.c_str());
+                // printf("json_str: %s\n", json_str.c_str());
                 //replace_null_with_nan(json_str);
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
@@ -281,7 +281,7 @@ int run(void *dora_context)
                 } */
                 scan = sensor_msgs::LaserScan::from_json(json_obj);
                 //printf("seq: %d\n", scan.header.seq);
-                printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
+                // printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
                 //printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 //printf("angle_min: %f\n", scan.angle_min);
                 //printf("angle_max: %f\n", scan.angle_max);

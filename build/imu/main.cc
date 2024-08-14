@@ -111,7 +111,7 @@ int run(void *dora_context) {
 
             nlohmann::json json_obj = imu_msg.to_json();
             std::string json_str = json_obj.dump();
-            printf("%s\n", json_str.c_str());
+            // printf("%s\n", json_str.c_str());
             const char* char_ptr = json_str.c_str();
             char* non_const_char_ptr = new char[json_str.size() + 1];
             std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);

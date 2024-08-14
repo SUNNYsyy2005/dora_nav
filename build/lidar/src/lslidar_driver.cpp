@@ -86,11 +86,11 @@ namespace lslidar_driver {
         pnh.param<bool>("coordinate_opt", coordinate_opt, false);
         pnh.param<std::string>("pointcloud_topic", pointcloud_topic, "lslidar_point_cloud");
         inet_aton(lidar_ip_string.c_str(), &lidar_ip);
-        printf("Only accepting packets from IP address: %s\n", lidar_ip_string.c_str());
+        // printf("Only accepting packets from IP address: %s\n", lidar_ip_string.c_str());
         //ROS_INFO_STREAM("Only accepting packets from IP address: " << lidar_ip_string.c_str());
         
         if (add_multicast){
-            printf("opening UDP socket: group_address %s\n", group_ip_string.c_str());
+            // printf("opening UDP socket: group_address %s\n", group_ip_string.c_str());
         } //ROS_INFO_STREAM("opening UDP socket: group_address " << group_ip_string);
 
         return true;
@@ -251,7 +251,7 @@ namespace lslidar_driver {
                     fpga_type = 4;
                     time_service_mode_ = difop_packet_ptr->data[45];
                     remove_rain_flag =  difop_packet_ptr->data[110];
-                    printf("Remove rain, fog, and dust, level: %d",remove_rain_flag);
+                    // printf("Remove rain, fog, and dust, level: %d",remove_rain_flag);
                     //ROS_INFO_ONCE("Remove rain, fog, and dust, level: %d",remove_rain_flag);
 
                     if (is_msc16 && difop_packet_ptr->data[1198] / 16 == 7 && difop_packet_ptr->data[1202] / 16 == 7) {
@@ -358,7 +358,7 @@ namespace lslidar_driver {
                      iter_z(cloud_msg, "z"), iter_intensity(cloud_msg, "intensity");
              iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z, ++iter_intensity) {
             if (std::isnan(*iter_x) || std::isnan(*iter_y) || std::isnan(*iter_z)) {
-                printf("rejected for nan in point(%f, %f, %f)\n", *iter_x, *iter_y, *iter_z);
+                // printf("rejected for nan in point(%f, %f, %f)\n", *iter_x, *iter_y, *iter_z);
                 //ROS_DEBUG("rejected for nan in point(%f, %f, %f)\n", *iter_x, *iter_y, *iter_z);
                 continue;
             }
@@ -939,7 +939,7 @@ namespace lslidar_driver {
 
         //check if the packet is valid
         if (!checkPacketValidity(packet) || !start_process_msop_){
-            printf("checkPacketValidity failed\n");
+            // printf("checkPacketValidity failed\n");
             return false;
         }  
         //printf("checkPacketValidity success\n");
@@ -1689,10 +1689,10 @@ namespace lslidar_driver {
             conversionAngle = conversionAngle_C16_3;
             distance_unit = 0.25;
             lidar_type = "c16_3";
-            printf("lidar type: c16, version 3.0\n");
+            // printf("lidar type: c16, version 3.0\n");
             //ROS_INFO("lidar type: c16, version 3.0");
             if (pkt->data[1204] == 0x39) return_mode = 2;
-            printf("return mode: %d\n", return_mode);
+            // printf("return mode: %d\n", return_mode);
             //ROS_INFO("return mode: %d", return_mode);
         } else if (pkt->data[1211] == 0x00 && pkt->data[1205] == 0x20) {
             for (int j = 0; j < 32; ++j) {

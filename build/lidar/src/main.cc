@@ -86,7 +86,7 @@ int main()
     signal(SIGINT, my_handler);
     //private_nh.param("lidar_type", lidar_type, std::string("c16_3"));
     //printf("lslidar type: %s\n", lidar_type.c_str());
-    std::cout << "HELLO FROM C++ (using C API)" << std::endl;
+    // std::cout << "HELLO FROM C++ (using C API)" << std::endl;
 
     // loop until shut down or end of file
     if (!dvr.initialize()) {
@@ -99,7 +99,7 @@ int main()
     auto ret = run(dora_context);
     free_dora_context(dora_context);
 
-    std::cout << "GOODBYE FROM C++ node (using C API)" << std::endl;
+    // std::cout << "GOODBYE FROM C++ node (using C API)" << std::endl;
 
     return ret;
 }

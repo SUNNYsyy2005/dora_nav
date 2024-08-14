@@ -5,8 +5,10 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 
 # 设置 Boost 的路径
-set(BOOST_INCLUDEDIR "/opt/boost-1.85.0-ubuntu-x64/include")
-set(BOOST_LIBRARYDIR "/opt/boost-1.85.0-ubuntu-x64/lib")
+# set(BOOST_INCLUDEDIR "/opt/boost-1.85.0-ubuntu-x64/include")
+# set(BOOST_LIBRARYDIR "/opt/boost-1.85.0-ubuntu-x64/lib")
+set(BOOST_INCLUDEDIR "/usr/include")
+set(BOOST_LIBRARYDIR "/usr/lib")
 
 # 设置 libpcap 的路径
 set(PCAP_LIBRARY "-lpcap")
@@ -67,7 +69,7 @@ target_link_libraries(test
 )
 
 # 确保 Boost 库被找到
-find_package(Boost 1.85.0 REQUIRED COMPONENTS system thread)
+# find_package(Boost 1.85.0 REQUIRED COMPONENTS system thread)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})

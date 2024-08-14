@@ -14,12 +14,15 @@ extern "C"
 #include "include/sensors/amcl_laser.h"
 #include "include/sensors/amcl_odom.h"
 
+FILE * file;
+
 
 #define M_PI 3.14159265358979323846
 std::chrono::steady_clock::time_point last_time = std::chrono::steady_clock::now();
 double global_x = 0.0; // x坐标
 double global_y = 0.0; // y坐标
 double global_theta = M_PI/2; // 角度
+
 double last_theta = M_PI/2;
 double steer_theta = 0.0;
 double last_velocity = 0.0;
@@ -68,6 +71,8 @@ void imuCallback(const sensor_msgs::Imu * msg) {
         msg->orientation.w);
     double roll, pitch, yaw;
     tf::getRPY(q,roll, pitch, yaw); // 将四元数转换为欧拉角
+    fprintf(file,"msg:\t x:%g \t y:%g \t z:%g \t w:%g \n",msg->orientation.x,msg->orientation.y,msg->orientation.z,msg->orientation.w);
+    fprintf(file,"yaw:%f",yaw);   
     global_theta = yaw+M_PI/2;// 小车的朝向
 }
 double toPI(double angle){
@@ -111,23 +116,23 @@ void process_samples(pf_t *pf) {
         printf("No clusters found.\n");
     }
     // 输出平均位置
-    printf("Average pose: %f %f %f global theta%f\n",msg2.x,msg2.y,msg2.theta,global_theta);
+    fprintf(file,"Average pose: %f %f %f global theta%f\n",msg2.x,msg2.y,msg2.theta,global_theta);
 }
-void laserCallback(const sensor_msgs::LaserScan* msg) {
+void laserCallback(const sensor_msgs::LaserScan* msg) {     
     auto now = std::chrono::steady_clock::now();
     // 检查自上次回调以来是否已经过了5秒
     //if (std::chrono::duration_cast<std::chrono::microseconds>(now - last_time).count() < 200000) {
         // 如果没有过5秒，就直接返回，不处理这次消息
     //    return;
     //}
-    updateParticlePoses();
+    updateParticlePoses();      
     // 更新上次处理消息的时间
     last_time = now;
     laser_data.ranges.resize(msg->ranges.size(), std::vector<double>(2)); 
     laser_data.range_count = msg->ranges.size();
     laser_data.range_max = msg->range_max;
     double range_min = msg->range_min;
-    double angle_increment = msg->angle_increment;
+    double angle_increment = msg->angle_increment;  
     for (size_t i = 0; i < msg->ranges.size(); ++i) {
         laser_data.ranges[i][0] = msg->ranges[i];
         laser_data.ranges[i][1] = msg->angle_min + i * angle_increment;
@@ -163,7 +168,7 @@ pf_vector_t random_pose_init(void *data) {
     pose.v[0] = (double) rand() / RAND_MAX; // x 坐标
     pose.v[1] = (double) rand() / RAND_MAX; // y 坐标
     pose.v[2] = (double) rand() / RAND_MAX * 2 * M_PI - M_PI; // 角度，从 -π 到 π
-    printf("Random pose: (%f, %f, %f)\n", pose.v[0], pose.v[1], pose.v[2]);
+    // printf("Random pose: (%f, %f, %f)\n", pose.v[0], pose.v[1], pose.v[2]);
     return pose;
 }
 int run(void *dora_context)
@@ -171,9 +176,9 @@ int run(void *dora_context)
     unsigned char counter = 0;
     msg2.x=400;msg2.y=400;msg2.theta=M_PI/2;
     map = map_alloc();
-    map_load_occ(map, "/home/sunny/dora_nav/build/nav/laser_data.pgm", 0.04,1);
+    map_load_occ(map, "/home/xiling/dora_nav/build/nav/laser_data.pgm", 0.04,1);
 
-    printf("map size: %d %d\n", map->size_x, map->size_y);
+    // printf("map size: %d %d\n", map->size_x, map->size_y);
     // 设置AMCL的激光雷达传感器模型
     amcl::AMCLLaser aa((size_t)2000, map);
     laser_sensor = aa;
@@ -196,17 +201,17 @@ int run(void *dora_context)
         return -1;
     }
     // 初始均值和协方差矩阵
-    pf_vector_t mean = {0, 1, M_PI/2}; // 初始均值 [x, y, theta]
-    pf_matrix_t cov = {1, 0, 0, 0, 1, 0 , 0, 0, 0}; // 初始协方差
+    pf_vector_t mean = {0, 0, M_PI/2}; // 初始均值 [x, y, theta]
+    pf_matrix_t cov = {1, 0, 0, 0, 1, 0 , 0, 0, M_PI}; // 初始协方差
     // 使用高斯模型初始化粒子滤波器
     pf_init(pf, mean, cov);
-
+    
     while(true)
     {
         void *event = dora_next_event(dora_context);
         if (event == NULL)
         {
-            printf("[c node] ERROR: unexpected end of event\n");
+            // printf("[c node] ERROR: unexpected end of event\n");
             continue;
         }
 
@@ -227,7 +232,7 @@ int run(void *dora_context)
                 std::string out_id = "pose";
                 nlohmann::json json_obj = msg2.to_json();
                 std::string json_str = json_obj.dump();
-                printf("%s\n", json_str.c_str());
+                // printf("%s\n", json_str.c_str());
                 const char* char_ptr = json_str.c_str();
                 char* non_const_char_ptr = new char[json_str.size() + 1];
                 std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
@@ -248,8 +253,8 @@ int run(void *dora_context)
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 sensor_msgs::LaserScan scan = sensor_msgs::LaserScan::from_json(json_obj);
-                printf("seq: %d\n", scan.header.seq);
-                printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
+                // printf("seq: %d\n", scan.header.seq);
+                // printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
                 /* printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 printf("angle_min: %f\n", scan.angle_min);
                 printf("angle_max: %f\n", scan.angle_max);
@@ -325,7 +330,7 @@ int run(void *dora_context)
 int main()
 {
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
-
+    file = fopen("/home/xiling/dora_nav/amcl.txt","a");
     auto dora_context = init_dora_context_from_env();
     auto ret = run(dora_context);
     free_dora_context(dora_context);
