@@ -148,3 +148,6 @@ make run 300 300 #只设置目标点
 `compile.sh`是用来编译dataflow.yml里面的所有节点的，在编译环境配置好的情况下可以使用<br><br>
 `start.sh`用来加串口权限，需要`sudo`运行<br><br>
 `replace_path.sh`是修改代码中一些绝对路径中的用户名，在使用前需要先进行修改成自己的用户名<br><br>   
+
+
+![](./dataflow.png)             
