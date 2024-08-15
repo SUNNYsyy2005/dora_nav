@@ -6,8 +6,12 @@ cd ~ && git clone https://github.com/dora-rs/dora/
 ```
 ### imu节点
 ```sh
-sudo chmod 777 /dev/ttyUSB0
+mkdir build && cd build
+cmake ..
+make
 ```
+连接上串口后要`sudo chmod 777 /dev/ttyUSB0`
+
 ### lidar节点
 lidar为镭神16线激光雷达，官方驱动网址为https://github.com/Lslidar/Lslidar_ROS1_driver.git
 
@@ -61,6 +65,12 @@ mkdir build && cd build
 cmake ..
 make
 ```
+
+### control节点
+```sh
+cd control && cargo build
+```
+连接上串口后要`sudo chmod 777 /dev/ttyUSB1`
 
 ## slam建图
 #### 运行
