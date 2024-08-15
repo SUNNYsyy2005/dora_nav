@@ -1,8 +1,7 @@
-# dora_nav
 ## 前置安装
 ### dora安装
 ```sh
-git clone https://github.com/dora-rs/dora/
+cd ~ && git clone https://github.com/dora-rs/dora/
 ...
 ```
 ### imu节点
@@ -132,3 +131,10 @@ make run 300 300 #只设置目标点
 该部分代码根据lidar节点提供障碍物信息和amcl节点提供的实时坐标，采用teb算法对全局路径中过程点之间路径进行实时规划
 
 注：该代码改自https://github.com/wushichatong/teb_local_planner_no_ros
+
+
+
+## 脚本解释
+`compile.sh`是用来编译dataflow.yml里面的所有节点的，在编译环境配置好的情况下可以使用<br><br>
+`start.sh`用来加串口权限，需要`sudo`运行<br><br>
+`replace_path.sh`是修改代码中一些绝对路径中的用户名，在使用前需要先进行修改成自己的用户名<br><br>   
