@@ -435,7 +435,10 @@ int main( int argc, const char** argv )
     {
         for (int x=MAP_SIZE_PIXELS-1; x>=0; x--)
         {
-            fprintf(output, "%d ", mapbytes[coords2index(x, y)]);
+            int new_x = y;
+            int new_y = MAP_SIZE_PIXELS - 1 - x;
+
+            fprintf(output, "%d ", mapbytes[coords2index(new_x, new_y)]);
         }
         fprintf(output, "\n");
     }

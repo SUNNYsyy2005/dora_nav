@@ -83,7 +83,7 @@ namespace lslidar_driver {
         pnh.param("horizontal_angle_resolution", horizontal_angle_resolution, 0.18);
         pnh.param<bool>("use_time_service", use_time_service, false);
         pnh.param<bool>("publish_scan", publish_scan, true);
-        pnh.param<bool>("coordinate_opt", coordinate_opt, false);
+        pnh.param<bool>("coordinate_opt", coordinate_opt, true);
         pnh.param<std::string>("pointcloud_topic", pointcloud_topic, "lslidar_point_cloud");
         inet_aton(lidar_ip_string.c_str(), &lidar_ip);
         // printf("Only accepting packets from IP address: %s\n", lidar_ip_string.c_str());

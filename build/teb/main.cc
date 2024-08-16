@@ -23,7 +23,7 @@ extern "C"
 FILE * filename;
 std::chrono::time_point<std::chrono::steady_clock> last_execution_time = std::chrono::steady_clock::now();
 using namespace teb_local_planner;
-const int step = 10;
+const int step = 20;
 const int width = 500;
 const int height = 500;
 const int map_width = 800;
@@ -110,9 +110,9 @@ int run(void *dora_context)
     // 参数配置
     TebConfig config;
     robot.x = 400;
-    robot.y = 450;
-    robot.theta = PI/2;
-    PoseSE2 start(400, 450, PI/2);
+    robot.y = 400;
+    robot.theta = 0;
+    PoseSE2 start(400, 400, 1.57);
     PoseSE2 end(GXtRX(GYtGX(pathh[0].second)),GXtRX(GYtGX((pathh[0].first))), PI/2);
     // printf("end x: %f, y: %f\n", GYtGX(end.y()/scale), GXtGY(end.x()/scale));
     std::vector<ObstaclePtr> obst_vector;
@@ -154,11 +154,12 @@ int run(void *dora_context)
                     cv::Point center(GXtMX(robot.x), GYtMY(robot.y)); // 计算圆心
                     cv::circle(show_map, center, r, cv::Scalar(255, 255, 255), -1); // 绘制填充圆
                     auto s = std::chrono::high_resolution_clock::now();
-                     printf("start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()), start.theta());
+                    fprintf(filename,"start x: %f, y: %f, theta: %f", GYtGX(start.y()/scale), GXtGY(start.x()/scale), start.theta());
                     planner->plan(start, end);
                     // do somthine
                     auto e = std::chrono::high_resolution_clock::now();
                     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(e - s);
+                    fprintf(filename,"cost %lld ms\n", ms.count());
                     // std::cout << "cost "<< ms.count()  <<" ms"<< std::endl;
                     // vi
                     std::vector<Eigen::Vector3f> path;
@@ -224,8 +225,6 @@ int run(void *dora_context)
                     const char* char_ptr = json_str.c_str();
                     char* non_const_char_ptr = new char[json_str.size() + 1];
                     std::memcpy(non_const_char_ptr, char_ptr, json_str.size() + 1);
-
-
                     int result = dora_send_output(dora_context, &out_id[0], out_id.length(), reinterpret_cast<char*>(non_const_char_ptr), json_str.size());
                     if (result != 0)
                     {
@@ -245,9 +244,9 @@ int run(void *dora_context)
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
                 robot = geometry_msgs::Pose2D::from_json(json_obj);
             }else if(id == "scan" && iftick){
-                //auto now = std::chrono::steady_clock::now();
+                auto now = std::chrono::steady_clock::now();
                 // 计算时间间隔
-                //std::chrono::duration<double> elapsed_seconds = now - last_execution_time;
+                
                 //if (elapsed_seconds.count() >= 0.1) {
                 //    last_execution_time = now;
                     //fprintf(filename,"too short\n");
@@ -285,7 +284,7 @@ int run(void *dora_context)
                         int y_ = GYtMY(gy);
                         //fprintf(filename,"x: %d, y: %d\n", x_, y_);
                         if(x_>=0 && x_<=800 && y_>=0 && y_<=800){
-                            if(scan.ranges[i] < 20){
+                            if(scan.ranges[i] < 3){
                                 show_map.at<cv::Vec3b>(y_, x_) = cv::Vec3b(125, 125, 125);
                             }
                             else{
@@ -297,9 +296,12 @@ int run(void *dora_context)
                     }
                 }
                 //printf("seq: %d\n", scan.header.seq);
-                 printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
-                 cv::imshow("path", show_map);
-                 cv::waitKey(1);
+                printf("stamp: %lld.%lld\n", scan.header.stamp.sec, scan.header.stamp.nsec);
+                last_execution_time = std::chrono::steady_clock::now();
+                std::chrono::duration<double> elapsed_seconds = now - last_execution_time;
+                fprintf(filename,"time:%g\n",elapsed_seconds.count());
+                cv::imshow("path", show_map);
+                cv::waitKey(1);
                 //printf("frame_id: %s\n", scan.header.frame_id.c_str());
                 //printf("angle_min: %f\n", scan.angle_min);
                 //printf("angle_max: %f\n", scan.angle_max);

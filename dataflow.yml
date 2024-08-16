@@ -23,7 +23,7 @@ nodes:
     custom:
       source: build/teb/build/test
       inputs:
-        tick: dora/timer/millis/100
+        tick: dora/timer/millis/500
         pose: amcl/pose
         scan: lidar/scan
       outputs:

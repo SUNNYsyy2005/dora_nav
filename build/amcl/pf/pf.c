@@ -401,7 +401,7 @@ void pf_update_resample(pf_t *pf)
 
   if (pf->selective_resampling != 0)
   {
-    if (set_a->n_effective > 0.5*(set_a->sample_count))
+    if (set_a->n_effective > 0.1*(set_a->sample_count))
     {
       // copy set a to b
       copy_set(set_a,set_b);

@@ -10,7 +10,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include)
-
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(amcl_dependencies)
 
@@ -37,5 +38,6 @@ target_link_libraries(
   pthread
   rt
   dl
+  ${OpenCV_LIBS}
 )
 

@@ -211,13 +211,13 @@ namespace teb_local_planner
 
             // Robot
 
-            robot.max_vel_x = 0.1;
-            robot.max_vel_x_backwards = 0.05;
+            robot.max_vel_x = 0.02;
+            robot.max_vel_x_backwards = 0.01;
             robot.max_vel_y = 0.0;
-            robot.max_vel_theta = 0.1;
-            robot.acc_lim_x = 0.05;
-            robot.acc_lim_y = 0.05;
-            robot.acc_lim_theta = 0.1;
+            robot.max_vel_theta = 0.05;
+            robot.acc_lim_x = 0.01;
+            robot.acc_lim_y = 0;
+            robot.acc_lim_theta = 0.05;
             robot.min_turning_radius = 0;
             robot.wheelbase = 1.0;
             robot.cmd_angle_instead_rotvel = false;
@@ -264,7 +264,7 @@ namespace teb_local_planner
             optim.weight_kinematics_turning_radius = 1;
             optim.weight_optimaltime = 1;
             optim.weight_shortest_path = 0;
-            optim.weight_obstacle = 50;
+            optim.weight_obstacle = 1;
             optim.weight_inflation = 0.1;
             optim.weight_dynamic_obstacle = 50;
             optim.weight_dynamic_obstacle_inflation = 0.1;

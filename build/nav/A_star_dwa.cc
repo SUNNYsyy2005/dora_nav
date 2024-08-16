@@ -31,14 +31,14 @@ public:
 
     Astar_DWA(int MAX_EDGE_LEN = 2*800*800, int LIMIT_TRIAL = 50000000) 
         : MAX_EDGE_LEN(MAX_EDGE_LEN), LIMIT_TRIAL(LIMIT_TRIAL), minx(0), maxx(800), miny(0), maxy(800),
-          robot_size(4), avoid_dist(4), r(10), obstree(nullptr), step_length(5), pathPointInterval(20) {}
+          robot_size(4), avoid_dist(4), r(10), obstree(nullptr), step_length(1), pathPointInterval(20) {}
 
     std::tuple<std::vector<int>, std::vector<int>, int> plan(int start_x, int start_y, double start_angle, int goal_x, int goal_y, double goal_angle) {
         // 初始化障碍物坐标数组
         std::vector<int> obstacle_x, obstacle_y;
 
         // 打开PGM文件
-        std::string image_path = "/home/xiling/dora_nav/build/nav/laser_data.pgm";
+        std::string image_path = "/home/sunny/dora_nav/build/nav/laser_data.pgm";
         std::ifstream file(image_path);
         if (!file) {
             std::cerr << "Failed to open image file: " << image_path << std::endl;
@@ -101,7 +101,7 @@ public:
         }
         img_data[start_y * width + start_x] = 0;
         img_data[goal_y * width + goal_x] = 0;
-        std::ofstream output_file("/home/xiling/dora_nav/build/nav/output.pgm");
+        std::ofstream output_file("/home/sunny/dora_nav/build/nav/output.pgm");
         output_file << "P2\n" << width << " " << height << " 255\n";
         for (int i = 0; i < width * height; ++i) {
             output_file << static_cast<int>(img_data[i]) << " ";
@@ -122,7 +122,7 @@ public:
 
         // 检查路径文件是否存在
         std::vector<std::vector<int>> path;
-        std::ifstream path_file("/home/xiling/dora_nav/build/teb/path.csv");
+        std::ifstream path_file("/home/sunny/dora_nav/build/teb/path.csv");
         if (!path_file.is_open()) {
             printf("Path file not found! Run A_star.\n");
             path = A_star(start_x, start_y, goal_x, goal_y);
@@ -130,7 +130,7 @@ public:
                 std::cerr << "No path found!" << std::endl;
                 return {{}, {}, 0};
             }
-            std::ofstream path_file_out("/home/xiling/dora_nav/build/teb/path.csv");
+            std::ofstream path_file_out("/home/sunny/dora_nav/build/teb/path.csv");
             for (const auto& point : path) {
                 path_file_out << point[0] << "," << point[1] << "\n";
             }
@@ -155,7 +155,7 @@ public:
             path_x.push_back(point[0]);
             path_y.push_back(point[1]);
         }
-        std::ofstream output_file2("/home/xiling/dora_nav/build/nav/output2.pgm");
+        std::ofstream output_file2("/home/sunny/dora_nav/build/nav/output2.pgm");
         output_file2 << "P2\n" << width << " " << height << " 255\n";
         for (int i = 0; i < width * height; ++i) {
             output_file2 << static_cast<int>(img_data[i]) << " ";
