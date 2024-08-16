@@ -3,6 +3,7 @@ build/amcl/*.pgm
 
 build/nav/build/**
 build/nav/*.pgm
+build/nav/main
 
 build/slam/build/**
 build/slam/slambuild/**
@@ -15,8 +16,8 @@ build/lidar/build/**
 
 build/imu/build/**
 build/imu/out/**
+build/imu/imu
 
-build/teb/src/optimal_planner.cpp
 
 **/target
 
