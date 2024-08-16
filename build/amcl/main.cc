@@ -10,6 +10,8 @@ extern "C"
 #include <cmath>
 #include <algorithm>
 #include <opencv2/opencv.hpp>
+#include <thread>
+#include <mutex>
 
 #include "include/map/map.h"
 #include "include/sensors/amcl_laser.h"
@@ -30,6 +32,8 @@ double last_velocity = 0.0;
 double last_steering_angle_velocity = 0.0;
 geometry_msgs::Pose2D msg2;
 sensor_msgs::LaserScan scan;
+sensor_msgs::Imu imu;
+geometry_msgs::Twist twist;
 std::chrono::steady_clock::time_point last_update_time = std::chrono::steady_clock::now();
 
 pf_t *pf;
@@ -38,6 +42,9 @@ amcl::AMCLLaser laser_sensor(10, NULL);
 amcl::AMCLOdom odom_sensor;
 amcl::AMCLLaserData laser_data;
 amcl::AMCLOdomData odom_data;
+
+std::mutex laser_mutex, imu_mutex, ackermann_mutex;
+
 void replace_null_with_nan(std::string& json_str) {
     std::string null_str = "null";
     std::string nan_str = "-1";
@@ -182,6 +189,34 @@ pf_vector_t random_pose_init(void *data) {
     // printf("Random pose: (%f, %f, %f)\n", pose.v[0], pose.v[1], pose.v[2]);
     return pose;
 }
+
+// 激光扫描线程函数
+void laser_thread_function() {
+    while (true) {
+        std::lock_guard<std::mutex> lock(laser_mutex);
+        laserCallback(&scan);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+// IMU线程函数
+void imu_thread_function() {
+    while (true) {
+        std::lock_guard<std::mutex> lock(imu_mutex);
+        imuCallback(&imu);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+// Ackermann控制线程函数
+void ackermann_thread_function() {
+    while (true) {
+        std::lock_guard<std::mutex> lock(ackermann_mutex);
+        ackermannCmdCallback(&twist);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
 int run(void *dora_context)
 {
     unsigned char counter = 0;
@@ -217,6 +252,11 @@ int run(void *dora_context)
     // 使用高斯模型初始化粒子滤波器
     pf_init(pf, mean, cov);
     
+    // 启动线程
+    std::thread laser_thread(laser_thread_function);
+    std::thread imu_thread(imu_thread_function);
+    std::thread ackermann_thread(ackermann_thread_function);
+
     while(true)
     {
         void *event = dora_next_event(dora_context);
@@ -308,7 +348,11 @@ int run(void *dora_context)
                     printf("%f ", intensity);
                 }
                 printf("\n  "); */
-                laserCallback(&scan);
+                // laserCallback(&scan);
+                {
+                    std::lock_guard<std::mutex> lock(laser_mutex);
+                    scan = sensor_msgs::LaserScan::from_json(json_obj);
+                }
             }else if(id == "imu"){
                 char *data_ptr;
                 size_t data_len;
@@ -318,14 +362,18 @@ int run(void *dora_context)
                 //replace_null_with_nan(json_str);
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
-                sensor_msgs::Imu imu = sensor_msgs::Imu::from_json(json_obj);
+                imu = sensor_msgs::Imu::from_json(json_obj);
                 //std::vector<unsigned char> data;
                 //for (size_t i = 0; i < data_len; i++)
                 //{
                 //    data.push_back(*(data_ptr + i));
                 //}
                 //sensor_msgs::Imu imu = sensor_msgs::Imu::from_vector(data);
-                imuCallback(&imu);
+                // imuCallback(&imu);
+                {
+                    std::lock_guard<std::mutex> lock(imu_mutex);
+                    imu = sensor_msgs::Imu::from_json(json_obj);
+                }
             }else if(id == "twist"){
                 char *data_ptr;
                 size_t data_len;
@@ -335,7 +383,7 @@ int run(void *dora_context)
                 //replace_null_with_nan(json_str);
                 //printf("json_str: %s\n", json_str.c_str());
                 nlohmann::json json_obj = nlohmann::json::parse(json_str);
-                geometry_msgs::Twist twist = geometry_msgs::Twist::from_json(json_obj);
+                twist = geometry_msgs::Twist::from_json(json_obj);
                 //printf("linear x: %f\n", twist.linear.x);
                 //printf("angular z: %f\n", twist.angular.z);
                 //std::vector<unsigned char> data;
@@ -344,7 +392,11 @@ int run(void *dora_context)
                 //    data.push_back(*(data_ptr + i));
                 //}
                 //geometry_msgs::Twist twist = geometry_msgs::Twist::from_vector(data);
-                ackermannCmdCallback(&twist);
+                // ackermannCmdCallback(&twist);
+                {
+                    std::lock_guard<std::mutex> lock(ackermann_mutex);
+                    twist = geometry_msgs::Twist::from_json(json_obj);
+                }
             }
         }
         else if (ty == DoraEventType_Stop)
@@ -365,7 +417,7 @@ int run(void *dora_context)
 int main()
 {
     std::cout << "HELLO FROM C++ (using C API)" << std::endl;
-    file = fopen("/home/sunny/dora_nav/amcl.txt","w");
+    file = fopen("/home/xiling/dora_nav/amcl.txt","w");
     auto dora_context = init_dora_context_from_env();
     auto ret = run(dora_context);
     free_dora_context(dora_context);
