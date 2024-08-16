@@ -116,7 +116,7 @@ dora start dataflow.yml
 ### 定位
 机器人定位的代码主要在amcl目录下，main.cc文件为起始文件
 
-该部分代码根据lidar节点信息和imu节点提供的机器人朝向估计，采用amcl算法估计机器人在地图的实时坐标
+该部分代码根据lidar节点信息和imu节点提供的机器人朝向估计，同时结合odom里程计信息提供机器人预估位移(暂无，采用通过twist消息中的速度进行积分预估位移)，采用amcl算法估计机器人在地图的实时坐标
 
 注：该代码改自https://github.com/ysuga/navigation_amcl/tree/master
 
