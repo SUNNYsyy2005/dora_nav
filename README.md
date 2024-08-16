@@ -65,7 +65,13 @@ mkdir build && cd build
 cmake ..
 make
 ```
+#### 调试定位？
+```sh
+dora start testflow.yml
+```
+此消息流会显示amcl定位信息(白色圆点)，读取到的地图障碍物信息(蓝色)，和根据定位信息匹配的实时雷达信息(黄色)
 
+如果想单独调试amcl定位，可以运行此消息流，并通过遥控器控制小车。
 ### control节点
 ```sh
 cd control && cargo build
@@ -104,11 +110,13 @@ dora start dataflow.yml
 流程图如下：
 ![](./dataflow.png)
 
+运行此消息流会显示两个图片，一个map图片是amcl的定位信息(具体含义详见调试amcl节点)，
+另一个path图片是teb节点收到的定位信息和雷达信息整合出的障碍物(白色，考虑的障碍物会比未考虑的障碍物颜色深)，以及实时规划的路线。
 
 ### 定位
 机器人定位的代码主要在amcl目录下，main.cc文件为起始文件
 
-该部分代码根据lidar节点信息和imu节点提供的机器人朝向估计，采用amcl算法估计机器人在地图的实时坐标
+该部分代码根据lidar节点信息和imu节点提供的机器人朝向估计，同时结合odom里程计信息提供机器人预估位移(暂无，采用通过twist消息中的速度进行积分预估位移)，采用amcl算法估计机器人在地图的实时坐标
 
 注：该代码改自https://github.com/ysuga/navigation_amcl/tree/master
 
