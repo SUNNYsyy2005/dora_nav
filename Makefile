@@ -10,4 +10,5 @@ start:
 clear:
 	rm -rf out
 	rm -rf amcl.txt
+	rm -rf teb.txt
 	clear
