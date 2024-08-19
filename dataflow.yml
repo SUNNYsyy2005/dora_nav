@@ -28,7 +28,7 @@ nodes:
         scan: lidar/scan
       outputs:
         - twist
-  - id: rust-sink
+  - id: control
     path: control/target/debug/control
     inputs:
       message: teb/twist
