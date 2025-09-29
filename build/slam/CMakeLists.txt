@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(slam)
 
-# Include directories
+# 包含统一配置文件
+include(${CMAKE_SOURCE_DIR}/../../cmake_config.cmake)
+
+# Include目录配置
 include_directories(${CMAKE_CURRENT_PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c)
+include_directories(${NLOHMANN_JSON_INCLUDE_DIRS})
 include_directories(
   ${YAMLCPP_INCLUDE_DIRS}
   $ENV{HOME}/dora/apis/c/node  # dora的头文件路径 node_api.h
   $ENV{HOME}/dora/apis/c/operator
-  ${CMAKE_CURRENT_SOURCE_DIR}  # 添加当前目录包含头文件
-  ${CMAKE_CURRENT_SOURCE_DIR}/c
 )
 
 # 添加源文件

@@ -1,8 +1,3 @@
-extern "C"
-{
-#include "node_api.h"
-}
-
 #include <iostream>
 #include <vector>
 

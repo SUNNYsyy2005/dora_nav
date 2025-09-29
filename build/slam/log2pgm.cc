@@ -54,6 +54,8 @@ using namespace std;
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "../../include/project_paths.h"
+
 
 #include "Position.hpp"
 #include "Laser.hpp"
@@ -424,7 +426,7 @@ int main( int argc, const char** argv )
     // Save map and trajectory as PGM file    
     
     char filename[100];
-    sprintf(filename, "/home/sunny/dora_nav/build/nav/%s.pgm", dataset);
+    sprintf(filename, "%s", ProjectPaths::nav_data_pgm(dataset).c_str());
     printf("\nSaving map to file %s\n", filename);
     
     FILE * output = fopen(filename, "wt");

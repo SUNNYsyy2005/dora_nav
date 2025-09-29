@@ -1,57 +1,26 @@
 cmake_minimum_required(VERSION 3.17)
 project(teb)
 
-# set(CMAKE_CXX_STANDARD 17)
-# SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake_modules)
+# 包含统一配置文件
+include(${CMAKE_SOURCE_DIR}/../../cmake_config.cmake)
 
-# 手动指定库和包含目录
+# 设置C++标准
+set(CMAKE_CXX_STANDARD 17)
+
+# 包含目录配置
 include_directories(
-    include
-    /usr/include/eigen3
-    /usr/include/suitesparse
-    /usr/include/g2o
-    /usr/include/opencv4
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/c
+    ${EIGEN_INCLUDE_DIRS}
+    ${SUITESPARSE_INCLUDE_DIRS}
+    ${G2O_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
     ${YAMLCPP_INCLUDE_DIRS}
     $ENV{HOME}/dora/apis/c/node  # dora的头文件路径 node_api.h
     $ENV{HOME}/dora/apis/c/operator
-    ${CMAKE_CURRENT_SOURCE_DIR}/c # 添加c文件夹作为include目录
-)
-
-# 手动指定库的位置
-set(G2O_LIBRARIES
-    /usr/lib/libg2o_core.so
-    /usr/lib/libg2o_stuff.so
-    /usr/lib/libg2o_types_slam2d.so
-    /usr/lib/libg2o_types_slam3d.so
-    /usr/lib/libg2o_solver_cholmod.so
-    /usr/lib/libg2o_solver_pcg.so
-    /usr/lib/libg2o_solver_csparse.so
-)
-
-set(SUITESPARSE_LIBRARIES
-    /usr/lib/libsuitesparseconfig.so
-    /usr/lib/libcholmod.so
-    /usr/lib/libccolamd.so
-    /usr/lib/libcolamd.so
-    /usr/lib/libcamd.so
-    /usr/lib/libamd.so
-)
-
-set(OpenCV_LIBS
-    /usr/lib/libopencv_core.so
-    /usr/lib/libopencv_imgproc.so
-    /usr/lib/libopencv_highgui.so
-    /usr/lib/libopencv_imgcodecs.so
-)
-
-set(Boost_LIBRARIES
-    /usr/lib/libboost_system.so
-    /usr/lib/libboost_thread.so
-    /usr/lib/libboost_graph.so
-)
-
-set(FMT_LIBRARIES
-    /usr/lib/libfmt.so
+    ${FMT_INCLUDE_DIRS}
+    ${NLOHMANN_JSON_INCLUDE_DIRS}
 )
 
 # 添加teb_local_planner的库
@@ -70,11 +39,14 @@ add_executable(test main.cc)
 target_link_libraries(
     test
     lib_teb
-  #   ${CMAKE_CURRENT_SOURCE_DIR}/libbreezyslam.so  # 链接本地的libbreezyslam库
     $ENV{HOME}/dora/target/release/libdora_node_api_c.a
     ${SUITESPARSE_LIBRARIES}
     ${G2O_LIBRARIES}
     ${Boost_LIBRARIES}
     ${OpenCV_LIBS}
     ${FMT_LIBRARIES}
+    rt
+    dl
+    pthread
+    cxsparse  # csparse库
 )

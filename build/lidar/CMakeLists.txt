@@ -1,18 +1,11 @@
 cmake_minimum_required(VERSION 3.17)
 project(lslidar_cx_driver)
 
+# 包含统一配置文件
+include(${CMAKE_SOURCE_DIR}/../../cmake_config.cmake)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
-
-# 设置 Boost 的路径
-# set(BOOST_INCLUDEDIR "/opt/boost-1.85.0-ubuntu-x64/include")
-# set(BOOST_LIBRARYDIR "/opt/boost-1.85.0-ubuntu-x64/lib")
-set(BOOST_INCLUDEDIR "/usr/include")
-set(BOOST_LIBRARYDIR "/usr/lib")
-
-# 设置 libpcap 的路径
-set(PCAP_LIBRARY "-lpcap")
-set(PCAP_INCLUDE_DIR "/usr/include")
 
 # 包含目录
 include_directories(
@@ -20,6 +13,7 @@ include_directories(
     ${BOOST_INCLUDEDIR}
     ${PCAP_INCLUDE_DIR}
     /usr/include/boost/signals2
+    ${NLOHMANN_JSON_INCLUDE_DIRS}
     $ENV{HOME}/dora/apis/c/node # dora的头文件路径 node_api.h
     $ENV{HOME}/dora/apis/c/operator
 )

@@ -1,3 +1,45 @@
+# dora_nav 项目
+
+自主机器人导航框架，基于Dora框架的模块化导航系统。
+
+## 📋 快速开始
+
+### 🚀 一键安装依赖
+
+```bash
+# 运行一键安装脚本
+./install_dependencies.sh
+
+# 或检查当前依赖状态
+./check_dependencies.sh
+```
+
+### 📚 文档导航
+
+- **📖 开发环境搭建**: [doc/DEVELOPMENT_SETUP.md](doc/DEVELOPMENT_SETUP.md) - 完整的依赖安装指南
+- **🔨 构建指南**: [doc/BUILD_GUIDE.md](doc/BUILD_GUIDE.md) - 编译和构建说明
+- **📁 路径管理**: [doc/PATH_MANAGEMENT.md](doc/PATH_MANAGEMENT.md) - 项目路径管理方案
+
+### 🎯 项目管理脚本
+
+- **编译脚本**: `./compile.sh --all` - 编译所有模块
+- **快速构建**: `./quick_build.sh [module]` - 快速编译指定模块
+- **环境设置**: `source setup_env.sh` - 设置环境变量
+
+### 📦 模块说明
+
+| 模块 | 描述 | 语言 | 编译命令 |
+|------|------|------|----------|
+| `amcl` | 自适应蒙特卡罗定位 | C++ | `./compile.sh amcl` |
+| `nav` | A* + DWA路径规划 | C++ | `./compile.sh nav` |
+| `slam` | 同时定位与建图 | C++ | `./compile.sh slam` |
+| `lidar` | 激光雷达驱动 | C++ | `./compile.sh lidar` |
+| `imu` | IMU传感器处理 | C++ | `./compile.sh imu` |
+| `teb` | 时间弹性带路径优化 | C++ | `./compile.sh teb` |
+| `control` | 运动控制器 | Rust | `./compile.sh control` |
+
+---
+
 ## 前置安装
 ### dora安装
 ```sh

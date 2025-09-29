@@ -7,6 +7,7 @@ extern "C"
 #include <vector>
 
 #include "../../include/ros.h"
+#include "../../include/project_paths.h"
 
 #include <fstream>
 #include <cmath>
@@ -69,7 +70,7 @@ void scanCallback(const sensor_msgs::LaserScan* data) {
     }
     printf("time_diff: %f, linear_displacement_mm: %f, angular_displacement_degrees: %f\n", time_diff, linear_displacement_mm, angular_displacement_degrees);
     // 格式化数据
-    std::ofstream file("/home/sunny/dora_nav/build/slam/laser_data.dat", std::ios::app);
+    std::ofstream file(ProjectPaths::build_slam_data(), std::ios::app);
     file<< time_diff << " " << linear_displacement_mm << " " << angular_displacement_degrees << " ";
     for (const auto& distance : distances_mm) {
         file << distance << " ";

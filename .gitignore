@@ -23,3 +23,6 @@ build/imu/imu
 
 **/out/
 **/out.bak/
+
+third_party
+.vscode
