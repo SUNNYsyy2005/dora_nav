@@ -49,3 +49,16 @@ target_link_libraries(
   dl
 )
 
+# Add executable for 'test_simple_yaml' (简化版SLAM + YAML生成)
+set(src_simple_yaml main_with_yaml.cc)
+add_executable(test_simple_yaml ${src_simple_yaml})
+target_link_libraries(
+  test_simple_yaml
+  $ENV{HOME}/dora/target/release/libdora_node_api_c.a
+  ${LZ4_LIBRARY}
+  ${OPENCV_LIBRARIES}
+  pthread
+  rt
+  dl
+)
+

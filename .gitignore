@@ -24,5 +24,20 @@ build/imu/imu
 **/out/
 **/out.bak/
 
+# Python缓存文件
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# 仿真相关构建文件
+sim/build/
+sim/*.log
+
+# Rust项目构建文件
+control/target/
+
+# 控制模块构建产物
+build/control/build/
+
 third_party
 .vscode

@@ -1,0 +1,11 @@
+image: slam_map.pgm
+resolution: 0.005
+origin: [0.0, 0.0, 0.0]
+occupied_thresh: 0.65
+free_thresh: 0.196
+negate: 0
+# Additional metadata
+map_size_meters: 4
+map_size_pixels: 800
+generated_time: 1759163952
+scan_count: 317

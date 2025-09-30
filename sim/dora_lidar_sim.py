@@ -43,6 +43,9 @@ def main():
     scan_count = 0
     last_log_time = time.time()
     
+    # 存储真实机器人位姿
+    true_robot_pose = {"x": -1.5, "y": -1.5, "theta": 0.0}
+    
     try:
         while True:
             event = node.next()
@@ -71,8 +74,13 @@ def main():
                 dt = 0.01  # 10ms对应100Hz
                 simulator.update_simulation(dt)
                 
-                # 生成雷达数据
+                # 使用真实位姿生成雷达数据
                 try:
+                    # 临时设置仿真器位姿为真实位姿
+                    simulator.x = true_robot_pose["x"]
+                    simulator.y = true_robot_pose["y"]
+                    simulator.theta = true_robot_pose["theta"]
+                    
                     lidar_json = simulator.simulate_lidar_scan()
                     
                     scan_count += 1
@@ -94,6 +102,28 @@ def main():
                     
                 except Exception as e:
                     logger.error(f"❌ Failed to generate lidar scan: {e}")
+                    
+            elif event["type"] == "INPUT" and event["id"] == "true_robot_pose":
+                # 接收真实机器人位姿
+                try:
+                    data = event["value"]
+                    if hasattr(data, 'to_pylist'):
+                        # PyArrow数组转换为JSON字符串
+                        data_list = data.to_pylist()
+                        data_str = ''.join(chr(x) for x in data_list)
+                        pose_data = json.loads(data_str)
+                    else:
+                        pose_data = json.loads(data)
+                    
+                    true_robot_pose["x"] = pose_data.get("x", true_robot_pose["x"])
+                    true_robot_pose["y"] = pose_data.get("y", true_robot_pose["y"])
+                    true_robot_pose["theta"] = pose_data.get("theta", true_robot_pose["theta"])
+                    
+                    if should_log:
+                        logger.info(f"📡 Received true robot pose: x={true_robot_pose['x']:.3f}, y={true_robot_pose['y']:.3f}, theta={true_robot_pose['theta']:.3f}")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Failed to parse true robot pose: {e}")
                     
     except KeyboardInterrupt:
         logger.info("🛑 Lidar simulation interrupted")

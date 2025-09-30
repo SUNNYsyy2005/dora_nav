@@ -131,7 +131,7 @@ void pf_free(pf_t *pf)
   
   return;
 }
-#define MAP_SCALE 0.04
+#define MAP_SCALE 0.005
 #define MAP_SIZE 800
 #define MAP_GXWX(x) (floor((x ) / MAP_SCALE + 0.5) + MAP_SIZE / 2)
 #define MAP_GYWY(y) (floor((y ) / MAP_SCALE + 0.5) + MAP_SIZE / 2)

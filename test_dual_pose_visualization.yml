@@ -1,0 +1,70 @@
+nodes:
+  - id: lidar_sim
+    path: sim/dora_lidar_sim.py
+    inputs:
+      tick: dora/timer/millis/100
+      true_robot_pose: robot_sim/true_robot_pose
+    outputs:
+      - scan
+
+  - id: imu_sim
+    path: sim/dora_imu_sim.py
+    inputs:
+      tick: dora/timer/millis/50
+      true_robot_pose: robot_sim/true_robot_pose
+    outputs:
+      - data
+
+  - id: robot_sim
+    path: sim/dora_robot_sim.py
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - true_robot_pose
+
+  - id: map_viz
+    path: build/map_viz/map_visualization_node.py
+    inputs:
+      tick: dora/timer/millis/100
+      pose: amcl/pose
+      imu_pose: amcl/imu_pose
+      true_robot_pose: robot_sim/true_robot_pose
+      global_path: nav/global_path
+      planning_status: nav/planning_status
+      scan: lidar_sim/scan
+    outputs:
+      - goal
+      - initial_pose
+      - map_info
+
+  - id: amcl
+    path: build/amcl/build/test
+    inputs:
+      tick: dora/timer/millis/50
+      scan2: lidar_sim/scan
+      imu: imu_sim/data
+      initial_pose: map_viz/initial_pose
+    outputs:
+      - pose
+      - imu_pose
+
+  - id: nav
+    path: build/nav/build/test_dora
+    inputs:
+      tick: dora/timer/millis/500
+      pose: amcl/pose
+      goal: map_viz/goal
+      map_info: map_viz/map_info
+    outputs:
+      - global_path
+      - planning_status
+
+  - id: teb
+    path: build/teb/build/test
+    inputs:
+      tick: dora/timer/millis/300
+      pose: amcl/pose
+      scan: lidar_sim/scan
+      global_path: nav/global_path
+    outputs:
+      - twist

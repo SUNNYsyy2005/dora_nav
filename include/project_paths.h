@@ -51,6 +51,10 @@ namespace ProjectPaths {
         return build_path("build/slam/laser_data.dat");
     }
     
+    inline std::string build_nav_data() {
+        return build_path("build/nav/");
+    }
+    
     inline std::string amcl_txt() {
         return build_path("amcl.txt");
     }
@@ -69,6 +73,10 @@ namespace ProjectPaths {
     
     inline std::string nav_data_pgm(const std::string& dataset) {
         return build_path("build/nav/" + dataset + ".pgm");
+    }
+    
+    inline std::string nav_data_yaml(const std::string& dataset) {
+        return build_path("build/nav/" + dataset + ".yaml");
     }
     
     inline std::string amcl_output_pgm() {

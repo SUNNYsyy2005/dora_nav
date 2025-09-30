@@ -658,6 +658,255 @@ namespace nav_msgs {
             return from_json(j);
         }
     };
+
+    // 路径消息 - 用于全局路径规划
+    class Path {
+    public:
+        Header header;
+        std::vector<geometry_msgs::Pose> poses;
+        
+        nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["header"] = header.to_json();
+            j["poses"] = nlohmann::json::array();
+            for (const auto& pose : poses) {
+                j["poses"].push_back(pose.to_json());
+            }
+            return j;
+        }
+        
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        
+        static Path from_json(const nlohmann::json& j) {
+            Path path;
+            path.header = Header::from_json(j["header"]);
+            for (const auto& pose_json : j["poses"]) {
+                path.poses.push_back(geometry_msgs::Pose::from_json(pose_json));
+            }
+            return path;
+        }
+        
+        static Path from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
+    };
+}
+
+// 导航相关消息命名空间
+namespace navigation_msgs {
+    // 目标点消息 - 可视化节点发送给NAV节点
+    class Goal {
+    public:
+        Header header;
+        geometry_msgs::Pose2D target_pose;
+        std::string goal_id;  // 目标点唯一标识
+        
+        nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["header"] = header.to_json();
+            j["target_pose"] = target_pose.to_json();
+            j["goal_id"] = goal_id;
+            return j;
+        }
+        
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        
+        static Goal from_json(const nlohmann::json& j) {
+            Goal goal;
+            goal.header = Header::from_json(j["header"]);
+            goal.target_pose = geometry_msgs::Pose2D::from_json(j["target_pose"]);
+            goal.goal_id = j["goal_id"];
+            return goal;
+        }
+        
+        static Goal from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
+    };
+
+    // 初始位姿设置消息 - 可视化节点发送给AMCL节点
+    class InitialPose {
+    public:
+        Header header;
+        geometry_msgs::Pose2D initial_pose;
+        
+        nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["header"] = header.to_json();
+            j["initial_pose"] = initial_pose.to_json();
+            return j;
+        }
+        
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        
+        static InitialPose from_json(const nlohmann::json& j) {
+            InitialPose pose;
+            pose.header = Header::from_json(j["header"]);
+            pose.initial_pose = geometry_msgs::Pose2D::from_json(j["initial_pose"]);
+            return pose;
+        }
+        
+        static InitialPose from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
+    };
+
+    // 路径规划状态消息
+    class PlanningStatus {
+    public:
+        enum Status {
+            IDLE = 0,
+            PLANNING = 1,
+            SUCCESS = 2,
+            FAILED = 3
+        };
+        
+        Header header;
+        Status status;
+        std::string message;
+        std::string goal_id;
+        
+        nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["header"] = header.to_json();
+            j["status"] = static_cast<int>(status);
+            j["message"] = message;
+            j["goal_id"] = goal_id;
+            return j;
+        }
+        
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        
+        static PlanningStatus from_json(const nlohmann::json& j) {
+            PlanningStatus status_msg;
+            status_msg.header = Header::from_json(j["header"]);
+            status_msg.status = static_cast<Status>(j["status"].get<int>());
+            status_msg.message = j["message"];
+            status_msg.goal_id = j["goal_id"];
+            return status_msg;
+        }
+        
+        static PlanningStatus from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
+    };
+}
+
+// 可视化相关消息命名空间
+namespace visualization_msgs {
+    // 地图信息消息 - 包含地图元数据
+    class MapInfo {
+    public:
+        Header header;
+        std::string map_file;       // 地图文件路径
+        double resolution;          // 地图分辨率 (m/pixel)
+        int width;                 // 地图宽度 (pixels)
+        int height;                // 地图高度 (pixels)
+        std::vector<double> origin; // 地图原点 [x, y, theta]
+        
+        nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["header"] = header.to_json();
+            j["map_file"] = map_file;
+            j["resolution"] = resolution;
+            j["width"] = width;
+            j["height"] = height;
+            j["origin"] = origin;
+            return j;
+        }
+        
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        
+        static MapInfo from_json(const nlohmann::json& j) {
+            MapInfo map_info;
+            map_info.header = Header::from_json(j["header"]);
+            map_info.map_file = j["map_file"];
+            map_info.resolution = j["resolution"];
+            map_info.width = j["width"];
+            map_info.height = j["height"];
+            map_info.origin = j["origin"].get<std::vector<double>>();
+            return map_info;
+        }
+        
+        static MapInfo from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
+    };
+
+    // 机器人状态可视化消息
+    class RobotState {
+    public:
+        Header header;
+        geometry_msgs::Pose2D current_pose;
+        geometry_msgs::Pose2D target_pose;
+        nav_msgs::Path current_path;
+        double battery_level;       // 电池电量 (0.0-1.0)
+        std::string status;         // 机器人状态描述
+        
+        nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["header"] = header.to_json();
+            j["current_pose"] = current_pose.to_json();
+            j["target_pose"] = target_pose.to_json();
+            j["current_path"] = current_path.to_json();
+            j["battery_level"] = battery_level;
+            j["status"] = status;
+            return j;
+        }
+        
+        std::vector<unsigned char> to_vector() const {
+            nlohmann::json j = to_json();
+            std::string json_str = j.dump();
+            return std::vector<unsigned char>(json_str.begin(), json_str.end());
+        }
+        
+        static RobotState from_json(const nlohmann::json& j) {
+            RobotState state;
+            state.header = Header::from_json(j["header"]);
+            state.current_pose = geometry_msgs::Pose2D::from_json(j["current_pose"]);
+            state.target_pose = geometry_msgs::Pose2D::from_json(j["target_pose"]);
+            state.current_path = nav_msgs::Path::from_json(j["current_path"]);
+            state.battery_level = j["battery_level"];
+            state.status = j["status"];
+            return state;
+        }
+        
+        static RobotState from_vector(const std::vector<unsigned char>& vec) {
+            std::string json_str(vec.begin(), vec.end());
+            nlohmann::json j = nlohmann::json::parse(json_str);
+            return from_json(j);
+        }
+    };
 }
 
 #endif // ROS_H

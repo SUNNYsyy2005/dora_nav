@@ -12,23 +12,23 @@ import numpy as np
 FIELD_WIDTH = 4.0  # 米
 FIELD_HEIGHT = 4.0  # 米
 
-# 障碍物定义 (x, y, width, height)
+# 障碍物定义 (x, y, width, height) - 地图中心坐标系
 OBSTACLES = [
-    (1.5, 1.0, 0.5, 0.3),  # 矩形障碍物1
-    (2.2, 2.8, 0.4, 0.4),  # 矩形障碍物2
-    (0.8, 3.2, 0.3, 0.6),  # 矩形障碍物3
+    (-0.5, -1.0, 0.5, 0.3),  # 矩形障碍物1 (原1.5,1.0)
+    (0.2, 0.8, 0.4, 0.4),    # 矩形障碍物2 (原2.2,2.8)
+    (-1.2, 1.2, 0.3, 0.6),   # 矩形障碍物3 (原0.8,3.2)
 ]
 
 class RobotSimulator:
     def __init__(self):
-        # 机器人初始位置（左下角）
-        self.x = 0.5
-        self.y = 0.5
+        # 机器人初始位置（地图中心坐标系，安全路径起点）
+        self.x = -1.7  # 安全路径起点
+        self.y = -1.7  # 安全路径起点
         self.theta = 0.0  # 朝向
     
-        # 运动参数
-        self.linear_speed = 0.5  # m/s
-        self.angular_speed = 0.3  # rad/s
+        # 运动参数（降低速度以便AMCL更好地跟踪）
+        self.linear_speed = 0.05  # m/s (降低到原来的1/10)
+        self.angular_speed = 0.15  # rad/s
         self.timer_period = 0.1  # 100ms
         
         # 路径参数
@@ -46,30 +46,35 @@ class RobotSimulator:
         # 左下 -> 右下 -> 右上 -> 左上 -> 左下
         
         def get_position_and_yaw(path_progress):
+            # 避开障碍物的安全路径
+            # 障碍物1: (-0.5, -1.0, 0.5, 0.3) - 底部中央
+            # 障碍物2: (0.2, 0.8, 0.4, 0.4) - 右上
+            # 障碍物3: (-1.2, 1.2, 0.3, 0.6) - 左上
+            
             if path_progress <= safe_width:
-                # 底部路径：向左移动
-                x = corner_size + path_progress
-                y = corner_size
+                # 底部路径：向右移动，避开障碍物1
+                x = -1.5 + path_progress  # 从-1.5到1.5
+                y = -1.7  # 更靠下，避开障碍物1 (y=-1.0到-0.7)
                 theta = 0.0
             elif path_progress <= safe_width + safe_height:
-                # 右侧路径：向上移动
-                x = FIELD_WIDTH - corner_size
-                y = corner_size + (path_progress - safe_width)
+                # 右侧路径：向上移动，避开障碍物2
+                x = 1.7  # 更靠右，避开障碍物2 (x=0.0到0.4)
+                y = -1.7 + (path_progress - safe_width)  # 从-1.7到1.7
                 theta = math.pi / 2
             elif path_progress <= 2 * safe_width + safe_height:
                 # 顶部路径：向左移动
-                x = FIELD_WIDTH - corner_size - (path_progress - safe_width - safe_height)
-                y = FIELD_HEIGHT - corner_size
+                x = 1.7 - (path_progress - safe_width - safe_height)  # 从1.7到-1.7
+                y = 1.7  # 更靠上
                 theta = math.pi
             elif path_progress <= 2 * safe_width + 2 * safe_height:
-                # 左侧路径：向下移动
-                x = corner_size
-                y = FIELD_HEIGHT - corner_size - (path_progress - 2 * safe_width - safe_height)
+                # 左侧路径：向下移动，避开障碍物3
+                x = -1.7  # 更靠左，避开障碍物3 (x=-1.35到-1.05)
+                y = 1.7 - (path_progress - 2 * safe_width - safe_height)  # 从1.7到-1.7
                 theta = -math.pi / 2
             else:
                 # 回到起点
-                x = corner_size
-                y = corner_size
+                x = -1.7
+                y = -1.7
                 theta = 0.0
                 
             return x, y, theta
@@ -114,23 +119,23 @@ class RobotSimulator:
             # 找到最近的距离
             min_distance = range_max
             
-            # 检查与场边界的交点
+            # 检查与场边界的交点（地图中心坐标系：-2m到+2m）
             if dx != 0:
                 # 与左右边界
-                t_left = (0 - start_x) / dx if (0 - start_x) / dx > 0 else float('inf')
-                t_right = (FIELD_WIDTH - start_x) / dx if (FIELD_WIDTH - start_x) / dx > 0 else float('inf')
-                if 0 < t_left < min_distance and 0 <= start_y + t_left * dy <= FIELD_HEIGHT:
+                t_left = (-2.0 - start_x) / dx if (-2.0 - start_x) / dx > 0 else float('inf')
+                t_right = (2.0 - start_x) / dx if (2.0 - start_x) / dx > 0 else float('inf')
+                if 0 < t_left < min_distance and -2.0 <= start_y + t_left * dy <= 2.0:
                     min_distance = t_left
-                if 0 < t_right < min_distance and 0 <= start_y + t_right * dy <= FIELD_HEIGHT:
+                if 0 < t_right < min_distance and -2.0 <= start_y + t_right * dy <= 2.0:
                     min_distance = t_right
                     
             if dy != 0:
                 # 与上下边界
-                t_bottom = (0 - start_y) / dy if (0 - start_y) / dy > 0 else float('inf')
-                t_top = (FIELD_HEIGHT - start_y) / dy if (FIELD_HEIGHT - start_y) / dy > 0 else float('inf')
-                if 0 < t_bottom < min_distance and 0 <= start_x + t_bottom * dx <= FIELD_WIDTH:
+                t_bottom = (-2.0 - start_y) / dy if (-2.0 - start_y) / dy > 0 else float('inf')
+                t_top = (2.0 - start_y) / dy if (2.0 - start_y) / dy > 0 else float('inf')
+                if 0 < t_bottom < min_distance and -2.0 <= start_x + t_bottom * dx <= 2.0:
                     min_distance = t_bottom
-                if 0 < t_top < min_distance and 0 <= start_x + t_top * dx <= FIELD_WIDTH:
+                if 0 < t_top < min_distance and -2.0 <= start_x + t_top * dx <= 2.0:
                     min_distance = t_top
             
             # 检查与障碍物的交点

@@ -20,12 +20,26 @@ include_directories(
 )
 
 
+# Add executable for 'test' (原始版本)
 set(src_test main.cc)
 add_executable(test ${src_test})
 target_link_libraries(
   test
   $ENV{HOME}/dora/target/release/libdora_node_api_c.a
   ${LZ4_LIBRARY}
+  pthread
+  rt
+  dl
+)
+
+# Add executable for 'test_dora' (Dora节点版本)
+set(src_dora main_dora.cc)
+add_executable(test_dora ${src_dora})
+target_link_libraries(
+  test_dora
+  $ENV{HOME}/dora/target/release/libdora_node_api_c.a
+  ${LZ4_LIBRARY}
+  ${OPENCV_LIBRARIES}
   pthread
   rt
   dl

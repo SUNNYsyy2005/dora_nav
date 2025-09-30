@@ -1,0 +1,19 @@
+nodes:
+  # TF管理器节点测试用dataflow
+  - id: pose_source
+    custom:
+      source: placeholder_pose
+      inputs:
+        timer: dora/timer/millis/100
+      outputs:
+        - pose
+
+  - id: tf_manager
+    custom:
+      source: build/tf_manager/build/test
+      inputs:
+        tick: dora/timer/millis/50
+        fused_pose: pose_source/pose
+      outputs:
+        - tf_transforms
+

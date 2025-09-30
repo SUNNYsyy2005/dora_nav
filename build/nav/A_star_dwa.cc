@@ -121,33 +121,20 @@ public:
         obstree = new flann::Index<flann::L2<int>>(dataset, flann::KDTreeIndexParams(4));
         obstree->buildIndex();
 
-        // 检查路径文件是否存在
-        std::vector<std::vector<int>> path;
-        std::ifstream path_file(ProjectPaths::build_teb_path_csv());
-        if (!path_file.is_open()) {
-            printf("Path file not found! Run A_star.\n");
-            path = A_star(start_x, start_y, goal_x, goal_y);
-            if (path.empty()) {
-                std::cerr << "No path found!" << std::endl;
-                return {{}, {}, 0};
-            }
-            std::ofstream path_file_out(ProjectPaths::build_teb_path_csv());
-            for (const auto& point : path) {
-                path_file_out << point[0] << "," << point[1] << "\n";
-            }
-        } else {
-            printf("Path file found! Read path from file.\n");
-            std::string line;
-            while (std::getline(path_file, line)) {
-                std::istringstream ss(line);
-                std::string token;
-                std::vector<int> point;
-                while (std::getline(ss, token, ',')) {
-                    point.push_back(std::stoi(token));
-                }
-                path.push_back(point);
-            }
+        // 每次都重新计算路径（不使用缓存）
+        printf("Running A* from (%d,%d) to (%d,%d)...\n", start_x, start_y, goal_x, goal_y);
+        std::vector<std::vector<int>> path = A_star(start_x, start_y, goal_x, goal_y);
+        if (path.empty()) {
+            std::cerr << "A*: No path found!" << std::endl;
+            return {{}, {}, 0};
         }
+        
+        // 保存路径到文件（用于调试和TEB）
+        std::ofstream path_file_out(ProjectPaths::build_teb_path_csv());
+        for (const auto& point : path) {
+            path_file_out << point[0] << "," << point[1] << "\n";
+        }
+        printf("A*: Path found with %zu points\n", path.size());
 
         std::vector<int> path_x, path_y;
         for (const auto& point : path) {

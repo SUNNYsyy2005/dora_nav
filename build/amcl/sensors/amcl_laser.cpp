@@ -237,10 +237,17 @@ double AMCLLaser::LikelihoodFieldModel(AMCLLaserData *data, pf_sample_set_t* set
   // Compute the sample weights
   //printf("%d %p\n", set->sample_count,set->samples);
   int tot=0;
+  printf("AMCL激光模型: 粒子数=%d, 激光束数=%d, 地图scale=%.6f\n", 
+         set->sample_count, data->range_count, self->map->scale);
   for (j = 0; j < set->sample_count; j++)
   {
     sample = set->samples + j;
     pose = sample->pose;
+    
+    // 归一化粒子角度到 [-π, π]
+    while (pose.v[2] > M_PI) pose.v[2] -= 2 * M_PI;
+    while (pose.v[2] < -M_PI) pose.v[2] += 2 * M_PI;
+    
     //printf("AAAA\n");
     //printf("%f %f %f\n",sample->pose.v[0],sample->pose.v[1],sample->pose.v[2]);
     //printf("%f %f %f\n",self->laser_pose.v[0],self->laser_pose.v[1],self->laser_pose.v[2]);
@@ -292,38 +299,55 @@ double AMCLLaser::LikelihoodFieldModel(AMCLLaserData *data, pf_sample_set_t* set
 
       // Compute the endpoint of the beam
       hit.v[0] = pose.v[0] + obs_range * cos(pose.v[2] + obs_bearing);
-      hit.v[1] = pose.v[1] - obs_range * sin(pose.v[2] + obs_bearing);
-      //printf("%f %f %f", hit.v[0], hit.v[1], obs_range);
+      hit.v[1] = pose.v[1] + obs_range * sin(pose.v[2] + obs_bearing);
+      
+      // 调试输出前几个激光束
+      if (i < 5 && j < 3) {
+        printf("AMCL激光束[%d,%d]: pose=(%.3f,%.3f,%.3f), obs_range=%.3f, obs_bearing=%.3f, hit=(%.3f,%.3f)\n",
+               i, j, pose.v[0], pose.v[1], pose.v[2], obs_range, obs_bearing, hit.v[0], hit.v[1]);
+      }
+      
       // Convert to map grid coords.
       int mi, mj;
       mi = MAP_GXWX(self->map, hit.v[0]);
       mj = MAP_GYWY(self->map, hit.v[1]);
+      
+      if (i < 5 && j < 3) {
+        printf("AMCL地图坐标[%d,%d]: hit=(%.3f,%.3f) -> map=(%d,%d)\n", i, j, hit.v[0], hit.v[1], mi, mj);
+      }
       //printf("mi:%d %d \n", mi, mj);
       // Part 1: Get distance from the hit to closest obstacle.
       // Off-map penalized as max distance
       
       if(!MAP_VALID(self->map, mi, mj)){
         z = self->map->max_occ_dist;
-        //printf("%f %f %f %f %d %d\n",pose.v[0],pose.v[1],obs_range,obs_bearing, mi, mj);
+        if (i < 5 && j < 3) {
+          printf("AMCL地图外[%d,%d]: map=(%d,%d), z=%.3f (max_occ_dist)\n", i, j, mi, mj, z);
+        }
       }
         
       else{
         z = self->map->cells[MAP_INDEX(self->map,mi,mj)].occ_dist;
-        if(self->map->cells[MAP_INDEX(self->map,mi,mj)].occ_state==0){
-          //printf("%f %f %f %f %d %d\n",pose.v[0],pose.v[1],obs_range,obs_bearing, mi, mj);
+        if (i < 5 && j < 3) {
+          printf("AMCL地图内[%d,%d]: map=(%d,%d), occ_state=%d, z=%.3f\n", 
+                 i, j, mi, mj, self->map->cells[MAP_INDEX(self->map,mi,mj)].occ_state, z);
         }
-        //if(z!=0)
-          //printf("mi:%d %d %f\n", mi, mj,z);
       }
       // Gaussian model
       // NOTE: this should have a normalization of 1/(sqrt(2pi)*sigma)
       //if(mj>966&&mj<984&&mi>1100&&mi<1111){
         //printf("mi:%d %d %f\n", mi, mj,z);
       //}//if(z!=0)printf("%f ", z);
-      pz += self->z_hit * exp(-(z * z) / z_hit_denom);
+      double hit_prob = self->z_hit * exp(-(z * z) / z_hit_denom);
       // Part 2: random measurements
-      pz += self->z_rand * z_rand_mult;
-      //printf("%f\n", pz);
+      double rand_prob = self->z_rand * z_rand_mult;
+      pz += hit_prob + rand_prob;
+      
+      if (i < 5 && j < 3) {
+        printf("AMCL概率[%d,%d]: z=%.3f, hit_prob=%.6f, rand_prob=%.6f, pz=%.6f\n", 
+               i, j, z, hit_prob, rand_prob, pz);
+      }
+      
       // TODO: outlier rejection for short readings
       assert(pz <= 1.0);
       assert(pz >= 0.0);
@@ -336,10 +360,17 @@ double AMCLLaser::LikelihoodFieldModel(AMCLLaserData *data, pf_sample_set_t* set
     if(flag){
       tot--;
       p = 0.01;
+      if (j < 3) {
+        printf("AMCL粒子[%d]: 地图外，p=0.01\n", j);
+      }
       if(sample->weight*p==0){
         printf("error\n");
         printf("sample->weight:%f\n",sample->weight);
         //exit(0);
+      }
+    } else {
+      if (j < 3) {
+        printf("AMCL粒子[%d]: 最终概率 p=%.6f\n", j, p);
       }
     }
     sample->weight *= p;
@@ -350,7 +381,7 @@ double AMCLLaser::LikelihoodFieldModel(AMCLLaserData *data, pf_sample_set_t* set
     }
     total_weight += sample->weight;
   }
-  //printf("%d %g\n",tot, total_weight);
+  printf("AMCL激光模型权重计算完成: 有效粒子数=%d, 总权重=%.6f\n", tot, total_weight);
   return(total_weight);
 }
 

@@ -1,0 +1,43 @@
+nodes:
+  # 位姿融合节点测试用dataflow
+  - id: imu
+    custom:
+      source: build/imu/build/test
+      outputs:
+        - data
+
+  - id: slam_simulator
+    custom:
+      source: build/slam/build/test
+      inputs:
+        timer: dora/timer/millis/100
+      outputs:
+        - pose
+
+  - id: amcl_simulator
+    custom:
+      source: build/amcl/build/test
+      inputs:
+        timer: dora/timer/millis/100
+      outputs:
+        - pose
+
+  - id: pose_fusion
+    custom:
+      source: build/pose_fusion/build/test
+      inputs:
+        tick: dora/timer/millis/50
+        slam_pose: slam_simulator/pose
+        amcl_pose: amcl_simulator/pose
+        imu_data: imu/data
+      outputs:
+        - fused_pose
+
+  - id: tf_manager
+    custom:
+      source: build/tf_manager/build/test
+      inputs:
+        tick: dora/timer/millis/50
+        fused_pose: pose_fusion/fused_pose
+      outputs:
+        - tf_transforms
